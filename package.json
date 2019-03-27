@@ -1,0 +1,32 @@
+{
+  "name": "onigiri",
+  "version": "1.0.0",
+  "description": "Gambling project for profit on deposit",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/VanijaDev/onigiri.git"
+  },
+  "keywords": [
+    "Blockchain",
+    "crypto",
+    "eth",
+    "TRX",
+    "ethereum",
+    "Tron",
+    "gambling",
+    "profit"
+  ],
+  "author": "Ivan Solomichev",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/VanijaDev/onigiri/issues"
+  },
+  "homepage": "https://github.com/VanijaDev/onigiri#readme"
+}
