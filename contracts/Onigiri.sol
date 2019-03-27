@@ -25,7 +25,7 @@ This is the ONIGIRI smart Contract
     1.1 multiple deposits - TODO
     2. lockBoxAmount = lockBox[msg.sender]
     3. let percentRate: percentRate() - uint balance = address(this).balance; => uint balance = lockBox[msg.sender];
-    4. getProfit() - investedETH[customer] => lockBox[customer]
+    4. calculateProfit() - investedETH[customer] => lockBox[customer]
     5. 
  
 
@@ -44,58 +44,34 @@ contract Onigiri {
     mapping (address => uint256) public affiliateCommisionTotal;
     
     /** Creator */
-    address dev1 = 0xBa21d01125D6932ce8ABf3625977899Fd2C7fa30;  //  TODO: Ronald's
+    address private constant dev1 = 0xBa21d01125D6932ce8ABf3625977899Fd2C7fa30;  //  TODO: Ronald's
      /** Future  */
-    address dev2 = 0xEDa159d4AD09bEdeB9fDE7124E0F5304c30F7790;  //  TODO: Ivan's
-    
-    //  0.075% per hour
-    uint public dailyStartPercent = 0;      //  0% - this stops contract from paying out 
-    uint public dailyLowPercent = 75;       // 1.8%
-    uint public dailyMiddlePercent = 150;   // 3.6%
-    uint public dailyHighPercent = 350;     // 8.4%
+    address private constant dev2 = 0xEDa159d4AD09bEdeB9fDE7124E0F5304c30F7790;  //  TODO: Ivan's
 
-    uint public stepLow = .15 ether;    //  1.8%
-    uint public stepMiddle = 150 ether; //  3.6%
-    uint public stepHigh = 1000 ether;  // 8.4%
+    /**
+     * PUBLIC
+     */
     
-    function percentRate() public view returns(uint) {
-        uint balance = lockBox.balance;
+    function invest(address _referral) public payable {
+        require(msg.value >= 0.025 ether, "min 0.025 eth");
         
-        if (balance < stepLow) {
-            return dailyStartPercent;
-        } else if (balance >= stepLow && balance < stepMiddle) {
-            return dailyLowPercent;
-        } else if (balance >= stepMiddle && balance < stepHigh) {
-            return dailyMiddlePercent;
-        } else {
-            return dailyHighPercent;
-        }
-    }
-    
-    function investETH(address referral) public payable {
-        require(msg.value >= 0.025 ether, "min investment == 0.025 eth");
-        
-        if(getProfit(msg.sender) > 0){
-            uint256 profit = getProfit(msg.sender);
+        uint256 profit = calculateProfit(msg.sender);
+        if(profit > 0){
             lastInvestment[msg.sender] = now;
             msg.sender.transfer(profit);
         }
         
-        uint256 amount = msg.value;
-        //  TODO: update to 2%
-        uint256 commision = amount.div(40);
-        if(referral != msg.sender && referral != address(0)){
-            // affiliateCommisionTotal[referral] = SafeMath.add(affiliateCommisionTotal[referral], commision);
-            affiliateCommisionTotal[referral] = affiliateCommisionTotal[referral].add(commision);
+        if(_referral != msg.sender && _referral != address(0)) {
+            uint256 commision = msg.value.mul(2).div(100);
+            affiliateCommisionTotal[_referral] = affiliateCommisionTotal[_referral].add(commision);
         }
         
         //  TODO: use mapping for each dev; each dev should withdraw by himself
         dev1.transfer(msg.value.div(100).mul(2));
         dev2.transfer(msg.value.div(100).mul(2));
 
-        
-        investedETH[msg.sender] = investedETH[msg.sender].add(amount);
-        withdrawnETH[msg.sender] = 0;
+        investedETH[msg.sender] = investedETH[msg.sender].add(msg.value);
+        delete withdrawnETH[msg.sender];
         lastInvestment[msg.sender] = now;
     }
 
@@ -109,15 +85,15 @@ contract Onigiri {
     function withdraw() public{
         require(lastInvestment[msg.sender] > 0, "ERROR: no investments");
         
-        uint256 payoutAmount = getProfit(msg.sender);
+        uint256 payoutAmount = calculateProfit(msg.sender);
         
         if(withdrawnETH[msg.sender].add(payoutAmount) <= investedETH[msg.sender]) { //  TODO: investedETH => lockBox
             withdrawnETH[msg.sender] = withdrawnETH[msg.sender].add(payoutAmount);
             msg.sender.transfer(payoutAmount);
         } else {
             uint256 payout = investedETH[msg.sender];
-            investedETH[msg.sender] = 0;
-            withdrawnETH[msg.sender] = 0;
+            delete investedETH[msg.sender];
+            delete withdrawnETH[msg.sender];
             msg.sender.transfer(payout);
         }
     }
@@ -125,15 +101,15 @@ contract Onigiri {
     //  TODO
     function withdrawEarnings() public {
         require(lastInvestment[msg.sender] > 0, "ERROR: no investments");
-        uint256 payoutAmount = getProfit(msg.sender);
+        uint256 payoutAmount = calculateProfit(msg.sender);
         msg.sender.transfer(payout);
     }
 
-    //  TODO: 
+    //  TODO
     function withdrawlockBox() public {
         require(lastInvestment[msg.sender] > 0, "ERROR: no investments");
 
-        uint256 payoutAmount = getProfit(msg.sender);
+        uint256 payoutAmount = calculateProfit(msg.sender);
         uint256 lockBoxAmount = lockBox[msg.sender];
         //  TODO decrease lockBoxAmount:
         //  3% - stays in contract
@@ -143,33 +119,31 @@ contract Onigiri {
         //  TODO: remove user totally
     }
 
-    //  suggest to remove and use getProfit(msg.sender) directly from JS
-    function getProfitFromSender() public view returns(uint256){
-        return getProfit(msg.sender);
-    }
+    //  should we remove and use calculateProfit(msg.sender) directly from JS?
+    // function calculateProfitFromSender() public view returns(uint256){
+    //     return calculateProfit(msg.sender);
+    // }
 
-    function getProfit(address customer) public view returns(uint256){
-        uint256 hourDifference = now.sub(lastInvestment[customer]).div(60);   // TODO: 3600 
+    function calculateProfit(address customer) public view returns(uint256){
+        uint256 hourDifference = now.sub(lastInvestment[customer]).div(60);   // TODO: why 60
         uint256 rate = percentRate();
         uint256 calculatedPercent = hourDifference.mul(rate);
-        return investedETH[customer].div(100000).mul(calculatedPercent);
+        return lockBox[customer].div(100000).mul(calculatedPercent);
     }
     
     function reinvestProfit() public {
-        uint256 profit = getProfit(msg.sender);
-        require(profit > 0);
+        uint256 profit = calculateProfit(msg.sender);
+        require(profit > 0, "no profit");
+
         lastInvestment[msg.sender] = now;
-        investedETH[msg.sender] = SafeMath.add(investedETH[msg.sender], profit);
+        investedETH[msg.sender] = investedETH[msg.sender].add(profit);
     }
     
-    function getaffiliateCommisionTotal() public view returns(uint256){
-        return affiliateCommisionTotal[msg.sender];
-    }
-    
-    function withdrawaffiliateCommisionTotal() public {
+    function withdrawAffiliateCommisionTotal() public {
         require(affiliateCommisionTotal[msg.sender] > 0);
+
         uint256 commision = affiliateCommisionTotal[msg.sender];
-        affiliateCommisionTotal[msg.sender] = 0;
+        delete affiliateCommisionTotal[msg.sender];
         msg.sender.transfer(commision);
     }
     
@@ -182,15 +156,21 @@ contract Onigiri {
      */
 
     function percentRate() private view returns(uint) {
-        uint balance = lockBox.balance;
+        uint256 stepLow = .15 ether;    //  1.8%
+        uint256 stepMiddle = 150 ether; //  3.6%
+        uint256 stepHigh = 1000 ether;  // 8.4%
+
+        //  0.075% per hour
+        uint256 dailyLowPercent = 75;       // 1.8%
+        uint256 dailyMiddlePercent = 150;   // 3.6%
+        uint256 dailyHighPercent = 350;     // 8.4%
         
-        if (balance < stepLow) {
-            return dailyStartPercent;
-        } else if (balance >= stepLow && balance < stepMiddle) {
+        uint balance = lockBox.balance;
+        if (balance >= stepLow && balance < stepMiddle) {
             return dailyLowPercent;
         } else if (balance >= stepMiddle && balance < stepHigh) {
             return dailyMiddlePercent;
-        } else {
+        } else if (balance >= stepHigh) {
             return dailyHighPercent;
         }
     }
