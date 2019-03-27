@@ -13,7 +13,7 @@ This is the ONIGIRI smart Contract
     investETH()
     1. user invests eth
     2. 100% - investedETH
-    3. 86% - LockBox
+    3. 86% - lockBox
     4.      no referral: 12% - stays in contract balance - contractPole
     4.1.    referral: 10% - stays in contract balance - contractPole, 2% - referrer address
     5. 4% - developers - immediately transferred (dev1, dev2)
@@ -21,9 +21,9 @@ This is the ONIGIRI smart Contract
     withdraw() - stays the same
     1. let h = get amount of hours after last deposit
     1.1 multiple deposits - TODO
-    2. lockBoxAmount = LockBox[msg.sender]
-    3. let persentRate: persentRate() - uint balance = address(this).balance; => uint balance = LockBox[msg.sender];
-    4. getProfit() - investedETH[customer] => LockBox[customer]
+    2. lockBoxAmount = lockBox[msg.sender]
+    3. let persentRate: persentRate() - uint balance = address(this).balance; => uint balance = lockBox[msg.sender];
+    4. getProfit() - investedETH[customer] => lockBox[customer]
     5. 
  
 
@@ -32,11 +32,11 @@ This is the ONIGIRI smart Contract
 
   */
 
-contract onigiri {
+contract Onigiri {
     using SafeMath for uint256;
     
-    mapping (address => uint256) public investedETH; // this is eth that is in Onigiri that will pay players
-    mapping (address => uint256) public LockBox; // user can withdraw at anytime 
+    mapping (address => uint256) public investedETH;
+    mapping (address => uint256) public lockBox; // user can withdraw at anytime 
     mapping (address => uint256) public withdrawnETH;
     mapping (address => uint256) public lastInvest;
     mapping (address => uint256) public affiliateCommision;
@@ -112,7 +112,7 @@ contract onigiri {
         
         uint256 payoutAmount = getProfit(msg.sender);
         
-        if(withdrawnETH[msg.sender].add(payoutAmount) <= investedETH[msg.sender]) { //  TODO: investedETH => LockBox
+        if(withdrawnETH[msg.sender].add(payoutAmount) <= investedETH[msg.sender]) { //  TODO: investedETH => lockBox
             withdrawnETH[msg.sender] = withdrawnETH[msg.sender].add(payoutAmount);
             msg.sender.transfer(payoutAmount);
         } else {
@@ -131,11 +131,11 @@ contract onigiri {
     }
 
     //  TODO: 
-    function withdrawLockBox() public {
+    function withdrawlockBox() public {
         require(lastInvest[msg.sender] > 0, "ERROR: no investments");
 
         uint256 payoutAmount = getProfit(msg.sender);
-        uint256 lockBoxAmount = LockBox[msg.sender];
+        uint256 lockBoxAmount = lockBox[msg.sender];
         //  TODO decrease lockBoxAmount:
         //  3% - stays in contract
         //  2% - to developers
