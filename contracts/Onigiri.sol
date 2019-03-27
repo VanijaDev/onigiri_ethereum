@@ -1,5 +1,7 @@
 pragma solidity ^0.5.0;
 
+import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
+
 /**
 
 This is the ONIGIRI smart Contract 
@@ -174,46 +176,22 @@ contract Onigiri {
     function getBalance() public view returns(uint256){
         return address(this).balance;
     }
-}
 
-library SafeMath {
+    /**
+     * PRIVATE
+     */
 
-  /**
-  * @dev Multiplies two numbers, throws on overflow.
-  */
-  function mul(uint256 a, uint256 b) internal pure returns (uint256) {
-    if (a == 0) {
-      return 0;
+    function percentRate() private view returns(uint) {
+        uint balance = lockBox.balance;
+        
+        if (balance < stepLow) {
+            return dailyStartPercent;
+        } else if (balance >= stepLow && balance < stepMiddle) {
+            return dailyLowPercent;
+        } else if (balance >= stepMiddle && balance < stepHigh) {
+            return dailyMiddlePercent;
+        } else {
+            return dailyHighPercent;
+        }
     }
-    uint256 c = a * b;
-    assert(c / a == b);
-    return c;
-  }
-
-  /**
-  * @dev Integer division of two numbers, truncating the quotient.
-  */
-  function div(uint256 a, uint256 b) internal pure returns (uint256) {
-    // assert(b > 0); // Solidity automatically throws when dividing by 0
-    uint256 c = a / b;
-    // assert(a == b * c + a % b); // There is no case in which this doesn't hold
-    return c;
-  }
-
-  /**
-  * @dev Substracts two numbers, throws on overflow (i.e. if subtrahend is greater than minuend).
-  */
-  function sub(uint256 a, uint256 b) internal pure returns (uint256) {
-    assert(b <= a);
-    return a - b;
-  }
-
-  /**
-  * @dev Adds two numbers, throws on overflow.
-  */
-  function add(uint256 a, uint256 b) internal pure returns (uint256) {
-    uint256 c = a + b;
-    assert(c >= a);
-    return c;
-  }
 }
