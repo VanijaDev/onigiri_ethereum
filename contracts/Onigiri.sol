@@ -83,7 +83,7 @@ contract Onigiri {
     
     //  TODO: not used
     function withdraw() public{
-        require(lastInvestment[msg.sender] > 0, "ERROR: no investments");
+        require(lastInvestment[msg.sender] > 0, "no investments");
         
         uint256 payoutAmount = calculateProfit(msg.sender);
         
@@ -98,16 +98,15 @@ contract Onigiri {
         }
     }
 
-    //  TODO
     function withdrawEarnings() public {
-        require(lastInvestment[msg.sender] > 0, "ERROR: no investments");
+        require(lastInvestment[msg.sender] > 0, "no investments");
         uint256 payoutAmount = calculateProfit(msg.sender);
         msg.sender.transfer(payout);
     }
 
     //  TODO
     function withdrawlockBox() public {
-        require(lastInvestment[msg.sender] > 0, "ERROR: no investments");
+        require(lastInvestment[msg.sender] > 0, "no investments");
 
         uint256 payoutAmount = calculateProfit(msg.sender);
         uint256 lockBoxAmount = lockBox[msg.sender];
