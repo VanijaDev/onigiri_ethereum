@@ -76,7 +76,7 @@ contract Onigiri {
         delete withdrawnETH[msg.sender];
     }
 
-    function withdrawDev() public {
+    function withdrawDevCommission() public {
         uint256 commission = devCommission[msg.sender];
         require(commission > 0, "no dev commission");
 
@@ -85,7 +85,7 @@ contract Onigiri {
 
     }
     
-    //  TODO: not used
+    //  TODO: should not used
     function withdraw() public{
         require(lastInvestment[msg.sender] > 0, "no investments");
         
@@ -102,6 +102,7 @@ contract Onigiri {
         }
     }
 
+    //  TODO
     function withdrawEarnings() public {
         require(lastInvestment[msg.sender] > 0, "no investments");
         uint256 payoutAmount = calculateProfit(msg.sender);
