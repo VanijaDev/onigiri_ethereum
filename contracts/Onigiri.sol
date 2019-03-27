@@ -22,7 +22,7 @@ This is the ONIGIRI smart Contract
     1. let h = get amount of hours after last deposit
     1.1 multiple deposits - TODO
     2. lockBoxAmount = lockBox[msg.sender]
-    3. let persentRate: persentRate() - uint balance = address(this).balance; => uint balance = lockBox[msg.sender];
+    3. let percentRate: percentRate() - uint balance = address(this).balance; => uint balance = lockBox[msg.sender];
     4. getProfit() - investedETH[customer] => lockBox[customer]
     5. 
  
@@ -48,25 +48,25 @@ contract Onigiri {
     
     //  0.075% per hour
     uint public dailyStartPercent = 0;      //  0% - this stops contract from paying out 
-    uint public dailyLowPersent = 75;       // 1.8%
-    uint public dailyMiddlePersent = 150;   // 3.6%
-    uint public dailyHighPersent = 350;     // 8.4%
+    uint public dailyLowPercent = 75;       // 1.8%
+    uint public dailyMiddlePercent = 150;   // 3.6%
+    uint public dailyHighPercent = 350;     // 8.4%
 
     uint public stepLow = .15 ether;    //  1.8%
     uint public stepMiddle = 150 ether; //  3.6%
     uint public stepHigh = 1000 ether;  // 8.4%
     
-    function persentRate() public view returns(uint) {
+    function percentRate() public view returns(uint) {
         uint balance = lockBox.balance;
         
         if (balance < stepLow) {
             return dailyStartPercent;
         } else if (balance >= stepLow && balance < stepMiddle) {
-            return dailyLowPersent;
+            return dailyLowPercent;
         } else if (balance >= stepMiddle && balance < stepHigh) {
-            return dailyMiddlePersent;
+            return dailyMiddlePercent;
         } else {
-            return dailyHighPersent;
+            return dailyHighPercent;
         }
     }
     
@@ -148,7 +148,7 @@ contract Onigiri {
 
     function getProfit(address customer) public view returns(uint256){
         uint256 hourDifference = now.sub(lastInvestment[customer]).div(60);   // TODO: 3600 
-        uint256 rate = persentRate();
+        uint256 rate = percentRate();
         uint256 calculatedPercent = hourDifference.mul(rate);
         return investedETH[customer].div(100000).mul(calculatedPercent);
     }
