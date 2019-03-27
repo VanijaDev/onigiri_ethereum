@@ -1,8 +1,9 @@
+pragma solidity ^0.5.0;
 
 /**
 
 This is the ONIGIRI smart Contract 
-85% to Lockbox withdraw at anytime
+85% to lockBox withdraw at anytime
     - on withdrawal stops paying daily 
 
 
