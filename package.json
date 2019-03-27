@@ -28,5 +28,8 @@
   "bugs": {
     "url": "https://github.com/VanijaDev/onigiri/issues"
   },
-  "homepage": "https://github.com/VanijaDev/onigiri#readme"
+  "homepage": "https://github.com/VanijaDev/onigiri#readme",
+  "dependencies": {
+    "openzeppelin-solidity": "^2.0.1"
+  }
 }
