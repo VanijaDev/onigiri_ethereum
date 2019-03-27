@@ -38,37 +38,34 @@ contract Onigiri {
     mapping (address => uint256) public investedETH;
     mapping (address => uint256) public lockBox; // user can withdraw at anytime 
     mapping (address => uint256) public withdrawnETH;
-    mapping (address => uint256) public lastInvest;
-    mapping (address => uint256) public affiliateCommision;
+    mapping (address => uint256) public lastInvestment;
+    mapping (address => uint256) public affiliateCommisionTotal;
     
     /** Creator */
-    address dev1 = 0xBa21d01125D6932ce8ABf3625977899Fd2C7fa30;    // testing A1    //  TODO: Ronald's
+    address dev1 = 0xBa21d01125D6932ce8ABf3625977899Fd2C7fa30;  //  TODO: Ronald's
      /** Future  */
-    address dev2 = 0xEDa159d4AD09bEdeB9fDE7124E0F5304c30F7790; // testing A2    //  TODO: Ivan's
+    address dev2 = 0xEDa159d4AD09bEdeB9fDE7124E0F5304c30F7790;  //  TODO: Ivan's
     
     //  0.075% per hour
-    uint public dailyStartPercent = 0;    //  0% - this stops contract from paying out 
-    uint public dailyLowPersent = 75;      // 1.8%
-    uint public dailyMiddlePersent = 150;   //  3.6%
+    uint public dailyStartPercent = 0;      //  0% - this stops contract from paying out 
+    uint public dailyLowPersent = 75;       // 1.8%
+    uint public dailyMiddlePersent = 150;   // 3.6%
     uint public dailyHighPersent = 350;     // 8.4%
 
-    uint public stepLow = .15 ether; //  1.8%
+    uint public stepLow = .15 ether;    //  1.8%
     uint public stepMiddle = 150 ether; //  3.6%
-    uint public stepHigh = 1000 ether; // 8.4%
+    uint public stepHigh = 1000 ether;  // 8.4%
     
     function persentRate() public view returns(uint) {
-        uint balance = address(this).balance;
+        uint balance = lockBox.balance;
         
         if (balance < stepLow) {
             return dailyStartPercent;
-        }
-        if (balance >= stepLow && balance < stepMiddle) {
+        } else if (balance >= stepLow && balance < stepMiddle) {
             return dailyLowPersent;
-        }
-        if (balance >= stepMiddle && balance < stepHigh) {
+        } else if (balance >= stepMiddle && balance < stepHigh) {
             return dailyMiddlePersent;
-        }
-        if (balance >= stepHigh) {
+        } else {
             return dailyHighPersent;
         }
     }
@@ -78,7 +75,7 @@ contract Onigiri {
         
         if(getProfit(msg.sender) > 0){
             uint256 profit = getProfit(msg.sender);
-            lastInvest[msg.sender] = now;
+            lastInvestment[msg.sender] = now;
             msg.sender.transfer(profit);
         }
         
@@ -86,8 +83,8 @@ contract Onigiri {
         //  TODO: update to 2%
         uint256 commision = amount.div(40);
         if(referral != msg.sender && referral != address(0)){
-            // affiliateCommision[referral] = SafeMath.add(affiliateCommision[referral], commision);
-            affiliateCommision[referral] = affiliateCommision[referral].add(commision);
+            // affiliateCommisionTotal[referral] = SafeMath.add(affiliateCommisionTotal[referral], commision);
+            affiliateCommisionTotal[referral] = affiliateCommisionTotal[referral].add(commision);
         }
         
         //  TODO: use mapping for each dev; each dev should withdraw by himself
@@ -97,7 +94,7 @@ contract Onigiri {
         
         investedETH[msg.sender] = investedETH[msg.sender].add(amount);
         withdrawnETH[msg.sender] = 0;
-        lastInvest[msg.sender] = now;
+        lastInvestment[msg.sender] = now;
     }
 
     function withdrawDev() public {
@@ -108,7 +105,7 @@ contract Onigiri {
     
     //  TODO: not used
     function withdraw() public{
-        require(lastInvest[msg.sender] > 0, "ERROR: no investments");
+        require(lastInvestment[msg.sender] > 0, "ERROR: no investments");
         
         uint256 payoutAmount = getProfit(msg.sender);
         
@@ -125,14 +122,14 @@ contract Onigiri {
 
     //  TODO
     function withdrawEarnings() public {
-        require(lastInvest[msg.sender] > 0, "ERROR: no investments");
+        require(lastInvestment[msg.sender] > 0, "ERROR: no investments");
         uint256 payoutAmount = getProfit(msg.sender);
         msg.sender.transfer(payout);
     }
 
     //  TODO: 
     function withdrawlockBox() public {
-        require(lastInvest[msg.sender] > 0, "ERROR: no investments");
+        require(lastInvestment[msg.sender] > 0, "ERROR: no investments");
 
         uint256 payoutAmount = getProfit(msg.sender);
         uint256 lockBoxAmount = lockBox[msg.sender];
@@ -150,7 +147,7 @@ contract Onigiri {
     }
 
     function getProfit(address customer) public view returns(uint256){
-        uint256 hourDifference = now.sub(lastInvest[customer]).div(60);   // TODO: 3600 
+        uint256 hourDifference = now.sub(lastInvestment[customer]).div(60);   // TODO: 3600 
         uint256 rate = persentRate();
         uint256 calculatedPercent = hourDifference.mul(rate);
         return investedETH[customer].div(100000).mul(calculatedPercent);
@@ -159,18 +156,18 @@ contract Onigiri {
     function reinvestProfit() public {
         uint256 profit = getProfit(msg.sender);
         require(profit > 0);
-        lastInvest[msg.sender] = now;
+        lastInvestment[msg.sender] = now;
         investedETH[msg.sender] = SafeMath.add(investedETH[msg.sender], profit);
     }
     
-    function getAffiliateCommision() public view returns(uint256){
-        return affiliateCommision[msg.sender];
+    function getaffiliateCommisionTotal() public view returns(uint256){
+        return affiliateCommisionTotal[msg.sender];
     }
     
-    function withdrawAffiliateCommision() public {
-        require(affiliateCommision[msg.sender] > 0);
-        uint256 commision = affiliateCommision[msg.sender];
-        affiliateCommision[msg.sender] = 0;
+    function withdrawaffiliateCommisionTotal() public {
+        require(affiliateCommisionTotal[msg.sender] > 0);
+        uint256 commision = affiliateCommisionTotal[msg.sender];
+        affiliateCommisionTotal[msg.sender] = 0;
         msg.sender.transfer(commision);
     }
     
