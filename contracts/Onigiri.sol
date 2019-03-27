@@ -42,6 +42,7 @@ contract Onigiri {
     mapping (address => uint256) public withdrawnETH;
     mapping (address => uint256) public lastInvestment;
     mapping (address => uint256) public affiliateCommisionTotal;
+    mapping (address => uint256) private devCommission;
     
     /** Creator */
     address private constant dev1 = 0xBa21d01125D6932ce8ABf3625977899Fd2C7fa30;  //  TODO: Ronald's
@@ -66,19 +67,22 @@ contract Onigiri {
             affiliateCommisionTotal[_referral] = affiliateCommisionTotal[_referral].add(commision);
         }
         
-        //  TODO: use mapping for each dev; each dev should withdraw by himself
-        dev1.transfer(msg.value.div(100).mul(2));
-        dev2.transfer(msg.value.div(100).mul(2));
-
+        uint256 devCommision = msg.value.div(100).mul(2);
+        devCommission[dev1] = devCommission[dev1].add(devCommision);
+        devCommission[dev2] = devCommission[dev2].add(devCommision);
+        
         investedETH[msg.sender] = investedETH[msg.sender].add(msg.value);
-        delete withdrawnETH[msg.sender];
         lastInvestment[msg.sender] = now;
+        delete withdrawnETH[msg.sender];
     }
 
     function withdrawDev() public {
-        //  if dev
-        //  get amount for current dev
-        //  transfer to dev
+        uint256 commission = devCommission[msg.sender];
+        require(commission > 0, "no dev commission");
+
+        delete devCommission[msg.sender];   //  TODO: test invest - withdraw - invest - withdraw
+        msg.sender.transfer(profit);
+
     }
     
     //  TODO: not used
