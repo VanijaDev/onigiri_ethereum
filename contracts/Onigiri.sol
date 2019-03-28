@@ -107,6 +107,15 @@ contract Onigiri {
         }
     }
 
+    
+    // withdraw() - stays the same
+    // 1. let h = get amount of hours after last deposit
+    // 1.1 multiple deposits - TODO
+    // 2. lockBoxAmount = lockBox[msg.sender]
+    // 3. let percentRate: percentRate() - uint balance = address(this).balance; => uint balance = lockBox[msg.sender];
+    // 4. calculateProfit() - investedETH[customer] => lockBox[customer]
+
+
     /**
      * @dev Allows investor to withdraw earnings.
      */
@@ -114,6 +123,10 @@ contract Onigiri {
     function withdrawEarnings() public {
         require(lastInvestment[msg.sender] > 0, "no investments");
         uint256 payoutAmount = calculateProfit(msg.sender);
+        
+        delete lockBox[msg.sender];
+        // delete lastInvestment[msg.sender]; - TODO: ???
+
         msg.sender.transfer(payout);
     }
 
@@ -121,17 +134,27 @@ contract Onigiri {
      * @dev Allows investor to withdraw lockBox funds.
      */
     //  TODO
-    function withdrawlockBox() public {
+    function withdrawLockBox() public {
         require(lastInvestment[msg.sender] > 0, "no investments");
 
         uint256 payoutAmount = calculateProfit(msg.sender);
         uint256 lockBoxAmount = lockBox[msg.sender];
-        //  TODO decrease lockBoxAmount:
-        //  3% - stays in contract
-        //  2% - to developers
-        msg.sender.transfer((lockBoxAmount + payoutAmount));
 
-        //  TODO: remove user totally
+        //  2% - to developers
+        uint256 devFee = lockBoxAmount.div(100);
+        devCommission[dev1] = devCommission[dev1].add(devFee);
+        devCommission[dev2] = devCommission[dev2].add(devFee);
+
+        //  3% - stays in contract
+        uint256 lockBoxWithdraw = lockBoxAmount.div(100).mul(95);
+
+        msg.sender.transfer((lockBoxWithdraw + payoutAmount));
+
+        //  remove user totally
+        delete investedETH[msg.sender];
+        delete lockBox[msg.sender];
+        // delete withdrawnETH[msg.sender]; TODO: - ?
+        delete lastInvestment[msg.sender];
     }
 
     //  should we remove and use calculateProfit(msg.sender) directly from JS?
