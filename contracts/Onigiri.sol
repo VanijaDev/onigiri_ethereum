@@ -87,7 +87,7 @@ contract Onigiri {
         require(commission > 0, "no dev commission");
 
         delete devCommission[msg.sender];   //  TODO: test invest - withdraw - invest - withdraw
-        msg.sender.transfer(profit);
+        msg.sender.transfer(commission);
     }
     
     // //  TODO: should not used
@@ -127,7 +127,7 @@ contract Onigiri {
         delete lockBox[msg.sender];
         // delete lastInvestment[msg.sender]; - TODO: ???
 
-        msg.sender.transfer(payout);
+        msg.sender.transfer(payoutAmount);
     }
 
     /**
