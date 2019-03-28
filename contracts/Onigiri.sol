@@ -44,9 +44,7 @@ contract Onigiri {
     mapping (address => uint256) public affiliateCommisionTotal;
     mapping (address => uint256) private devCommission;
     
-    /** Creator */
     address private constant dev1 = 0xBa21d01125D6932ce8ABf3625977899Fd2C7fa30;  //  TODO: Ronald's
-     /** Future  */
     address private constant dev2 = 0xEDa159d4AD09bEdeB9fDE7124E0F5304c30F7790;  //  TODO: Ivan's
 
     /**
