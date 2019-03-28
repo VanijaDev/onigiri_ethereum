@@ -90,22 +90,22 @@ contract Onigiri {
         msg.sender.transfer(profit);
     }
     
-    //  TODO: should not used
-    function withdraw() public{
-        require(lastInvestment[msg.sender] > 0, "no investments");
+    // //  TODO: should not used
+    // function withdraw() public{
+    //     require(lastInvestment[msg.sender] > 0, "no investments");
         
-        uint256 payoutAmount = calculateProfit(msg.sender);
+    //     uint256 payoutAmount = calculateProfit(msg.sender);
         
-        if(withdrawnETH[msg.sender].add(payoutAmount) <= investedETH[msg.sender]) { //  TODO: investedETH => lockBox
-            withdrawnETH[msg.sender] = withdrawnETH[msg.sender].add(payoutAmount);
-            msg.sender.transfer(payoutAmount);
-        } else {
-            uint256 payout = investedETH[msg.sender];
-            delete investedETH[msg.sender];
-            delete withdrawnETH[msg.sender];
-            msg.sender.transfer(payout);
-        }
-    }
+    //     if(withdrawnETH[msg.sender].add(payoutAmount) <= investedETH[msg.sender]) { //  TODO: investedETH => lockBox
+    //         withdrawnETH[msg.sender] = withdrawnETH[msg.sender].add(payoutAmount);
+    //         msg.sender.transfer(payoutAmount);
+    //     } else {
+    //         uint256 payout = investedETH[msg.sender];
+    //         delete investedETH[msg.sender];
+    //         delete withdrawnETH[msg.sender];
+    //         msg.sender.transfer(payout);
+    //     }
+    // }
 
     
     // withdraw() - stays the same
