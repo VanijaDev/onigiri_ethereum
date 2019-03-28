@@ -72,8 +72,8 @@ contract Onigiri {
         devCommission[dev1] = devCommission[dev1].add(devCommision);
         devCommission[dev2] = devCommission[dev2].add(devCommision);
         
-        investedETH[msg.sender] = investedETH[msg.sender].add(msg.value);
         lastInvestment[msg.sender] = now;
+        investedETH[msg.sender] = investedETH[msg.sender].add(msg.value);
         delete withdrawnETH[msg.sender];
     }
 
@@ -86,7 +86,6 @@ contract Onigiri {
 
         delete devCommission[msg.sender];   //  TODO: test invest - withdraw - invest - withdraw
         msg.sender.transfer(profit);
-
     }
     
     //  TODO: should not used
