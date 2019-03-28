@@ -60,7 +60,6 @@ contract Onigiri {
         
         uint256 profit = calculateProfit(msg.sender);
         if(profit > 0){
-            lastInvestment[msg.sender] = now;
             msg.sender.transfer(profit);
         }
         
