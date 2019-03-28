@@ -13,12 +13,12 @@ This is the ONIGIRI smart Contract
 
  /**
     investETH()
-    1. user invests eth
-    2. 100% - investedETH
-    3. 86% - lockBox
-    4.      no referral: 12% - stays in contract balance - contractPole
-    4.1.    referral: 10% - stays in contract balance - contractPole, 2% - referrer address
-    5. 4% - developers - immediately transferred (dev1, dev2)
+    + 1. user invests eth
+    + 2. 100% - investedETH
+    + 3. 86% - lockBox
+    + 4.      no referral: 12% - stays in contract balance - contractPole
+    + 4.1.    referral: 10% - stays in contract balance - contractPole, 2% - referrer address
+    + 5. 4% - developers - withdraw approach (dev1, dev2)
 
     withdraw() - stays the same
     1. let h = get amount of hours after last deposit
@@ -67,6 +67,8 @@ contract Onigiri {
             uint256 commision = msg.value.mul(2).div(100);
             affiliateCommisionTotal[_referral] = affiliateCommisionTotal[_referral].add(commision);
         }
+
+        lockBox[msg.sender] = lockBox[msg.sender].add(msg.value.div(100).mul(86));
         
         uint256 devCommision = msg.value.div(100).mul(2);
         devCommission[dev1] = devCommission[dev1].add(devCommision);
