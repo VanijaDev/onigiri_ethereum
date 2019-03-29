@@ -29,8 +29,9 @@ This is the ONIGIRI smart Contract
     5. 
  
 
-
-    contract will let withdraw if balance > 0.15 eth
+    TODO:
+    1. contract will let withdraw if balance > 0.15 eth
+    2. multiple investment
 
   */
 
@@ -85,6 +86,7 @@ contract Onigiri {
     function withdrawDevCommission() public {
         uint256 commission = devCommission[msg.sender];
         require(commission > 0, "no dev commission");
+        require(address(this).balance.sub(commission) > 0.15 ether, "not enough funds");
 
         delete devCommission[msg.sender];   //  TODO: test invest - withdraw - invest - withdraw
         msg.sender.transfer(commission);
@@ -123,8 +125,9 @@ contract Onigiri {
     function withdrawEarnings() public {
         require(lastInvestment[msg.sender] > 0, "no investments");
         uint256 payoutAmount = calculateProfit(msg.sender);
+        require(address(this).balance.sub(payoutAmount) > 0.15 ether, "not enough funds");
         
-        delete lockBox[msg.sender];
+        delete lockBox[msg.sender]; //  TODO: ???
         // delete lastInvestment[msg.sender]; - TODO: ???
 
         msg.sender.transfer(payoutAmount);
@@ -139,6 +142,7 @@ contract Onigiri {
 
         uint256 payoutAmount = calculateProfit(msg.sender);
         uint256 lockBoxAmount = lockBox[msg.sender];
+        require(address(this).balance.sub(payoutAmount).sub(lockBoxAmount) > 0.15 ether, "not enough funds");
 
         //  2% - to developers
         uint256 devFee = lockBoxAmount.div(100);
