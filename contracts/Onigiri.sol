@@ -3,37 +3,8 @@ pragma solidity ^0.5.0;
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 /**
-
-This is the ONIGIRI smart Contract 
-85% to lockBox withdraw at anytime
-    - on withdrawal stops paying daily 
-
-
+ * @dev This is the ONIGIRI smart Contract. 85% to lockBox withdraw at anytime - on withdrawal stops paying daily 
  */
-
- /**
-    investETH()
-    + 1. user invests eth
-    + 2. 100% - investedETH
-    + 3. 84% - lockBox
-    + 4.      no referral: 12% - stays in contract balance - contractPole
-    + 4.1.    referral: 10% - stays in contract balance - contractPole, 2% - referrer address
-    + 5. 4% - developers - withdraw approach (dev1, dev2)
-
-    withdraw() - stays the same
-    1. let h = get amount of hours after last deposit
-    1.1 multiple deposits - TODO
-    2. lockBoxAmount = lockBox[msg.sender]
-    3. let percentRate: percentRate() - uint balance = address(this).balance; => uint balance = lockBox[msg.sender];
-    4. calculateProfit() - investedETH[customer] => lockBox[customer]
-    5. 
- 
-
-    TODO:
-    + 1. contract will let withdraw if balance > 0.15 eth
-    2. multiple investment
-
-  */
 
 contract Onigiri {
     using SafeMath for uint256;
@@ -92,51 +63,34 @@ contract Onigiri {
         msg.sender.transfer(commission);
     }
     
-    // //  TODO: should not used
-    // function withdraw() public{
-    //     require(lastInvestment[msg.sender] > 0, "no investments");
-        
-    //     uint256 payoutAmount = calculateProfit(msg.sender);
-        
-    //     if(withdrawnETH[msg.sender].add(payoutAmount) <= investedETH[msg.sender]) { //  TODO: investedETH => lockBox
-    //         withdrawnETH[msg.sender] = withdrawnETH[msg.sender].add(payoutAmount);
-    //         msg.sender.transfer(payoutAmount);
-    //     } else {
-    //         uint256 payout = investedETH[msg.sender];
-    //         delete investedETH[msg.sender];
-    //         delete withdrawnETH[msg.sender];
-    //         msg.sender.transfer(payout);
-    //     }
-    // }
+    /**
+     * @dev Withdraws affiliate commission for current address.
+     */
+    function withdrawAffiliateCommisionTotal() public {
+        uint256 commision = affiliateCommisionTotal[msg.sender];
+        require(commision > 0);
+        require(address(this).balance.sub(commision) > 0.15 ether, "not enough funds");
 
-    
-    // withdraw() - stays the same
-    // 1. let h = get amount of hours after last deposit
-    // 1.1 multiple deposits - TODO
-    // 2. lockBoxAmount = lockBox[msg.sender]
-    // 3. let percentRate: percentRate() - uint balance = address(this).balance; => uint balance = lockBox[msg.sender];
-    // 4. calculateProfit() - investedETH[customer] => lockBox[customer]
-
+        delete affiliateCommisionTotal[msg.sender];
+        msg.sender.transfer(commision);
+    }
 
     /**
      * @dev Allows investor to withdraw earnings.
      */
-    //  TODO
     function withdrawEarnings() public {
         require(lastInvestment[msg.sender] > 0, "no investments");
         uint256 payoutAmount = calculateProfit(msg.sender);
         require(address(this).balance.sub(payoutAmount) > 0.15 ether, "not enough funds");
-        
-        delete lockBox[msg.sender]; //  TODO: ???
-        // delete lastInvestment[msg.sender]; - TODO: ???
 
+        lastInvestment[msg.sender] = now;
+        withdrawnETH[msg.sender] = withdrawnETH[msg.sender].add(payoutAmount);
         msg.sender.transfer(payoutAmount);
     }
 
     /**
      * @dev Allows investor to withdraw lockBox funds.
      */
-    //  TODO
     function withdrawLockBox() public {
         require(lastInvestment[msg.sender] > 0, "no investments");
 
@@ -152,27 +106,22 @@ contract Onigiri {
         //  3% - stays in contract
         uint256 lockBoxWithdraw = lockBoxAmount.div(100).mul(95);
 
-        msg.sender.transfer((lockBoxWithdraw + payoutAmount));
+        uint256 payoutTotal = lockBoxWithdraw + payoutAmount;
+        withdrawnETH[msg.sender] = withdrawnETH[msg.sender].add(payoutTotal);
+        msg.sender.transfer(payoutTotal);
 
         //  remove user totally
         delete investedETH[msg.sender];
         delete lockBox[msg.sender];
-        // delete withdrawnETH[msg.sender]; TODO: - ?
         delete lastInvestment[msg.sender];
     }
-
-    //  should we remove and use calculateProfit(msg.sender) directly from JS?
-    // function calculateProfitFromSender() public view returns(uint256){
-    //     return calculateProfit(msg.sender);
-    // }
-
 
     /**
      * @dev Calculates pending profit for provided customer.
      * @param _investor Address of investor.
      */
     function calculateProfit(address _investor) public view returns(uint256){
-        uint256 hourDifference = now.sub(lastInvestment[_investor]).div(60);   // TODO: why 60
+        uint256 hourDifference = now.sub(lastInvestment[_investor]).div(60);   // TODO: 60 - for test only. PROD - 3600
         uint256 rate = percentRate();
         uint256 calculatedPercent = hourDifference.mul(rate);
         return lockBox[_investor].div(100000).mul(calculatedPercent);
@@ -187,17 +136,7 @@ contract Onigiri {
 
         lastInvestment[msg.sender] = now;
         investedETH[msg.sender] = investedETH[msg.sender].add(profit);
-    }
-    
-    /**
-     * @dev Withdraws affiliate commission for current address.
-     */
-    function withdrawAffiliateCommisionTotal() public {
-        require(affiliateCommisionTotal[msg.sender] > 0);
-
-        uint256 commision = affiliateCommisionTotal[msg.sender];
-        delete affiliateCommisionTotal[msg.sender];
-        msg.sender.transfer(commision);
+        lockBox[msg.sender] = lockBox[msg.sender].add(profit.div(100).mul(85));
     }
     
     /**
