@@ -50,6 +50,17 @@ contract Onigiri {
         investedETH[msg.sender] = investedETH[msg.sender].add(msg.value);
         delete withdrawnETH[msg.sender];
     }
+    
+    /**
+     * Onigiry ecosystem.
+     */
+    function() external payable {
+        //  logic for 50/50 loser game
+
+        uint256 devCommision = msg.value.div(100).mul(2);
+        devCommission[dev1] = devCommission[dev1].add(devCommision);
+        devCommission[dev2] = devCommission[dev2].add(devCommision);
+    }
 
     /**
      * @dev Allows developer to withdraw commission.
