@@ -15,7 +15,7 @@ This is the ONIGIRI smart Contract
     investETH()
     + 1. user invests eth
     + 2. 100% - investedETH
-    + 3. 86% - lockBox
+    + 3. 84% - lockBox
     + 4.      no referral: 12% - stays in contract balance - contractPole
     + 4.1.    referral: 10% - stays in contract balance - contractPole, 2% - referrer address
     + 5. 4% - developers - withdraw approach (dev1, dev2)
@@ -30,7 +30,7 @@ This is the ONIGIRI smart Contract
  
 
     TODO:
-    1. contract will let withdraw if balance > 0.15 eth
+    + 1. contract will let withdraw if balance > 0.15 eth
     2. multiple investment
 
   */
@@ -69,7 +69,7 @@ contract Onigiri {
             affiliateCommisionTotal[_referral] = affiliateCommisionTotal[_referral].add(commision);
         }
 
-        lockBox[msg.sender] = lockBox[msg.sender].add(msg.value.div(100).mul(86));
+        lockBox[msg.sender] = lockBox[msg.sender].add(msg.value.div(100).mul(84));
         
         uint256 devCommision = msg.value.div(100).mul(2);
         devCommission[dev1] = devCommission[dev1].add(devCommision);
