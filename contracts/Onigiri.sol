@@ -20,6 +20,7 @@ contract Onigiri {
     address private constant dev2 = 0xEDa159d4AD09bEdeB9fDE7124E0F5304c30F7790;  //  TODO: Ivan's
 
     uint256 private constant minBalance = 0.15 ether;
+    uint256 public constant minInvest = 0.025 ether;
 
     /**
      * PUBLIC
@@ -30,7 +31,7 @@ contract Onigiri {
      * @param _referral Referral address.
      */
     function invest(address _referral) public payable {
-        require(msg.value >= 0.025 ether, "min 0.025 eth");
+        require(msg.value >= minInvest, "min 0.025 eth");
         
         uint256 profit = calculateProfit(msg.sender);
         if(profit > 0){
