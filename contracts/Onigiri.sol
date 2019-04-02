@@ -19,6 +19,8 @@ contract Onigiri {
     address private constant dev1 = 0xBa21d01125D6932ce8ABf3625977899Fd2C7fa30;  //  TODO: Ronald's
     address private constant dev2 = 0xEDa159d4AD09bEdeB9fDE7124E0F5304c30F7790;  //  TODO: Ivan's
 
+    uint256 private constant minBalance = 0.15 ether;
+
     /**
      * PUBLIC
      */
@@ -68,7 +70,7 @@ contract Onigiri {
     function withdrawDevCommission() public {
         uint256 commission = devCommission[msg.sender];
         require(commission > 0, "no dev commission");
-        require(address(this).balance.sub(commission) > 0.15 ether, "not enough funds");
+        require(address(this).balance.sub(commission) > minBalance, "not enough funds");
 
         delete devCommission[msg.sender];   //  TODO: test invest - withdraw - invest - withdraw
         msg.sender.transfer(commission);
@@ -80,7 +82,7 @@ contract Onigiri {
     function withdrawAffiliateCommisionTotal() public {
         uint256 commision = affiliateCommisionTotal[msg.sender];
         require(commision > 0);
-        require(address(this).balance.sub(commision) > 0.15 ether, "not enough funds");
+        require(address(this).balance.sub(commision) > minBalance, "not enough funds");
 
         delete affiliateCommisionTotal[msg.sender];
         msg.sender.transfer(commision);
@@ -92,7 +94,7 @@ contract Onigiri {
     function withdrawEarnings() public {
         require(lastInvestment[msg.sender] > 0, "no investments");
         uint256 payoutAmount = calculateProfit(msg.sender);
-        require(address(this).balance.sub(payoutAmount) > 0.15 ether, "not enough funds");
+        require(address(this).balance.sub(payoutAmount) > minBalance, "not enough funds");
 
         lastInvestment[msg.sender] = now;
         withdrawnETH[msg.sender] = withdrawnETH[msg.sender].add(payoutAmount);
@@ -107,7 +109,7 @@ contract Onigiri {
 
         uint256 payoutAmount = calculateProfit(msg.sender);
         uint256 lockBoxAmount = lockBox[msg.sender];
-        require(address(this).balance.sub(payoutAmount).sub(lockBoxAmount) > 0.15 ether, "not enough funds");
+        require(address(this).balance.sub(payoutAmount).sub(lockBoxAmount) > minBalance, "not enough funds");
 
         //  2% - to developers
         uint256 devFee = lockBoxAmount.div(100);
