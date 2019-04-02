@@ -65,6 +65,11 @@ contract Onigiri {
         devCommission[dev2] = devCommission[dev2].add(devCommision);
     }
 
+    function getDevCommission() public view returns(uint256) {
+        require(msg.sender == dev1 || msg.sender == dev2, "not dev");
+        return devCommission[msg.sender];
+    }
+
     /**
      * @dev Allows developer to withdraw commission.
      */
