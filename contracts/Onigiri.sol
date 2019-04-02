@@ -90,7 +90,7 @@ contract Onigiri {
      */
     function withdrawAffiliateCommisionTotal() public {
         uint256 commision = affiliateCommisionTotal[msg.sender];
-        require(commision > 0);
+        require(commision > 0, "no commission");
         require(address(this).balance.sub(commision) > minBalance, "not enough funds");
 
         delete affiliateCommisionTotal[msg.sender];
