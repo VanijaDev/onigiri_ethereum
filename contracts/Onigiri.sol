@@ -16,8 +16,8 @@ contract Onigiri {
     mapping (address => uint256) public affiliateCommisionTotal;
     mapping (address => uint256) private devCommission;
     
-    address private constant dev1 = 0xBa21d01125D6932ce8ABf3625977899Fd2C7fa30;  //  TODO: Ronald's
-    address private constant dev2 = 0xEDa159d4AD09bEdeB9fDE7124E0F5304c30F7790;  //  TODO: Ivan's
+    address private constant dev_0 = 0xc9d76DB051245846254d3aF4949f1094bEEeE3CE;  //  TODO: Ronald's
+    address private constant dev_1 = 0xb37277d6558D41fAdd2a291AB0bD398D4564Be40;  //  TODO: Ivan's
 
     uint256 private constant minBalance = 0.15 ether;
     uint256 public constant minInvest = 0.025 ether;
@@ -32,12 +32,12 @@ contract Onigiri {
      */
     function invest(address _referral) public payable {
         require(msg.value >= minInvest, "min 0.025 eth");
-        
+
         uint256 profit = calculateProfit(msg.sender);
         if(profit > 0){
             msg.sender.transfer(profit);
         }
-        
+
         if(_referral != msg.sender && _referral != address(0)) {
             uint256 commision = msg.value.mul(2).div(100);
             affiliateCommisionTotal[_referral] = affiliateCommisionTotal[_referral].add(commision);
@@ -46,12 +46,12 @@ contract Onigiri {
         lockBox[msg.sender] = lockBox[msg.sender].add(msg.value.div(100).mul(84));
         
         uint256 devCommision = msg.value.div(100).mul(2);
-        devCommission[dev1] = devCommission[dev1].add(devCommision);
-        devCommission[dev2] = devCommission[dev2].add(devCommision);
+        devCommission[dev_0] = devCommission[dev_0].add(devCommision);
+        devCommission[dev_1] = devCommission[dev_1].add(devCommision);
         
         lastInvestment[msg.sender] = now;
         investedETH[msg.sender] = investedETH[msg.sender].add(msg.value);
-        delete withdrawnETH[msg.sender];
+        delete withdrawnETH[msg.sender];    //  TODO:
     }
     
     /**
@@ -61,15 +61,15 @@ contract Onigiri {
         //  logic for 50/50 loser game
 
         uint256 devCommision = msg.value.div(100).mul(2);
-        devCommission[dev1] = devCommission[dev1].add(devCommision);
-        devCommission[dev2] = devCommission[dev2].add(devCommision);
+        devCommission[dev_0] = devCommission[dev_0].add(devCommision);
+        devCommission[dev_1] = devCommission[dev_1].add(devCommision);
     }
 
     /**
      * @dev Returns commission for developer.
      */
     function getDevCommission() public view returns(uint256) {
-        require(msg.sender == dev1 || msg.sender == dev2, "not dev");
+        require(msg.sender == dev_0 || msg.sender == dev_1, "not dev");
         return devCommission[msg.sender];
     }
 
@@ -122,8 +122,8 @@ contract Onigiri {
 
         //  2% - to developers
         uint256 devFee = lockBoxAmount.div(100);
-        devCommission[dev1] = devCommission[dev1].add(devFee);
-        devCommission[dev2] = devCommission[dev2].add(devFee);
+        devCommission[dev_0] = devCommission[dev_0].add(devFee);
+        devCommission[dev_1] = devCommission[dev_1].add(devFee);
 
         //  3% - stays in contract
         uint256 lockBoxWithdraw = lockBoxAmount.div(100).mul(95);
