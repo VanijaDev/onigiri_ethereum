@@ -144,8 +144,8 @@ contract Onigiri {
      * @param _investor Address of investor.
      */
     function calculateProfit(address _investor) public view returns(uint256){
-        uint256 hourDifference = now.sub(lastInvestment[_investor]).div(60);   // TODO: 60 - for test only. PROD - 3600
-        uint256 rate = percentRate();
+        uint256 hourDifference = now.sub(lastInvestment[_investor]).div(3600);
+        uint256 rate = percentRate(_investor);
         uint256 calculatedPercent = hourDifference.mul(rate);
         return lockBox[_investor].div(100000).mul(calculatedPercent);
     }
@@ -175,8 +175,9 @@ contract Onigiri {
 
     /**
      * @dev Calculates rate for lockBox balance for msg.sender.
+     * @param _investor Address of investor.
      */
-    function percentRate() private view returns(uint) {
+    function percentRate(address _investor) private view returns(uint) {
         uint256 stepLow = .15 ether;    //  1.8%
         uint256 stepMiddle = 150 ether; //  3.6%
         uint256 stepHigh = 1000 ether;  // 8.4%
@@ -186,13 +187,13 @@ contract Onigiri {
         uint256 dailyMiddlePercent = 150;   // 3.6%
         uint256 dailyHighPercent = 350;     // 8.4%
         
-        uint balance = lockBox[msg.sender];
-        if (balance >= stepLow && balance < stepMiddle) {
-            return dailyLowPercent;
+        uint balance = lockBox[_investor];
+        if (balance >= stepHigh) {
+            return dailyHighPercent;
         } else if (balance >= stepMiddle && balance < stepHigh) {
             return dailyMiddlePercent;
-        } else if (balance >= stepHigh) {
-            return dailyHighPercent;
+        } else if (balance >= stepLow && balance < stepMiddle) {
+            return dailyLowPercent;
         }
     }
 }
