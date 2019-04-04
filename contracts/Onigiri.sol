@@ -19,7 +19,7 @@ contract Onigiri {
     address private constant dev_0 = 0xc9d76DB051245846254d3aF4949f1094bEEeE3CE;  //  TODO: Ronald's
     address private constant dev_1 = 0xb37277d6558D41fAdd2a291AB0bD398D4564Be40;  //  TODO: Ivan's
 
-    uint256 private constant minBalance = 0.5 ether;
+    uint256 private constant minBalance = 0.05 ether;
     uint256 public constant minInvest = 0.025 ether;
 
     /**
@@ -73,7 +73,6 @@ contract Onigiri {
         return devCommission[msg.sender];
     }
 
-//  TODO: start here
     /**
      * @dev Allows developer to withdraw commission.
      */
