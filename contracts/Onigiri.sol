@@ -73,6 +73,7 @@ contract Onigiri {
         return devCommission[msg.sender];
     }
 
+//  TODO: start here
     /**
      * @dev Allows developer to withdraw commission.
      */
