@@ -16,8 +16,9 @@ contract Onigiri {
     mapping (address => uint256) public affiliateCommisionTotal;
     mapping (address => uint256) private devCommission;
     
-    address private constant dev_0 = 0xc9d76DB051245846254d3aF4949f1094bEEeE3CE;  //  TODO: Ronald's
-    address private constant dev_1 = 0xb37277d6558D41fAdd2a291AB0bD398D4564Be40;  //  TODO: Ivan's
+    //  TODO: make updatable
+    address private dev_0 = 0xc9d76DB051245846254d3aF4949f1094bEEeE3CE;  //  TODO: Ronald's
+    address private dev_1 = 0xb37277d6558D41fAdd2a291AB0bD398D4564Be40;  //  TODO: Ivan's
 
     uint256 private constant minBalance = 0.05 ether;
     uint256 public constant minInvest = 0.025 ether;
@@ -81,7 +82,7 @@ contract Onigiri {
         require(commission > 0, "no dev commission");
         require(address(this).balance.sub(commission) > minBalance, "not enough funds");
 
-        delete devCommission[msg.sender];   //  TODO: test invest - withdraw - invest - withdraw
+        delete devCommission[msg.sender];
         msg.sender.transfer(commission);
     }
     
