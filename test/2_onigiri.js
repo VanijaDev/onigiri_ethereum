@@ -217,11 +217,11 @@ contract("Withdraw functional", (accounts) => {
         value: ether("0.5")
       });
 
-      await time.increase(time.duration.days(49));
+      await time.increase(time.duration.days(59));
       await onigiri.withdrawEarnings({
         from: INVESTOR_0
       });
-      await shouldFail(await onigiri.withdrawAffiliateCommisionTotal({
+      await shouldFail(onigiri.withdrawAffiliateCommisionTotal({
         from: REFERRAL_0
       }), "should fail, because balance will become less than minimum allowed");
     });

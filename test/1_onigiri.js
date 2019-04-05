@@ -108,7 +108,7 @@ contract("During investment", (accounts) => {
       assert.equal(0, ether("0").cmp(await onigiri.calculateProfit.call(INVESTOR_1)), "balance should be 0 right after");
     });
 
-    it.only("should send correct ptofit on second investment, 1 hour after first investment", async () => {
+    it("should send correct ptofit on second investment, 1 hour after first investment", async () => {
       assert.equal(0, new web3.utils.BN(0).cmp(await onigiri.calculateProfit.call(INVESTOR_1)), "balance should be 0 before");
       await onigiri.invest(REFERRAL_0, {
         from: INVESTOR_0,
@@ -116,10 +116,8 @@ contract("During investment", (accounts) => {
       });
       await time.increase(time.duration.hours(1));
       let balanceBefore = new web3.utils.BN(await web3.eth.getBalance(INVESTOR_0));
-      console.log("balanceBefore: ", balanceBefore.toString());
 
       const CORRECT_PROFIT = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
-      console.log("CORRECT_PROFIT: ", CORRECT_PROFIT.toString());
 
       let investTX = await onigiri.invest(REFERRAL_0, {
         from: INVESTOR_0,
@@ -129,7 +127,6 @@ contract("During investment", (accounts) => {
       let gasPrice = (await web3.eth.getTransaction(investTX.tx)).gasPrice;
       let weiUsed = new web3.utils.BN(gasUsed).mul(new web3.utils.BN(gasPrice));
       let balanceAfter = new web3.utils.BN(await web3.eth.getBalance(INVESTOR_0));
-      console.log("balanceAfter: ", balanceAfter.toString());
 
       assert.equal(0, balanceBefore.add(CORRECT_PROFIT).sub(weiUsed).sub(ether("1.5")).cmp(balanceAfter), "amount should be 0 for correct commision transferred");
 
