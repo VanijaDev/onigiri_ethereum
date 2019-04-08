@@ -24,8 +24,8 @@ contract Onigiri {
     uint256 public affiliateCommisionWithdrawnTotal;
     uint256 public donatedTotal;
     
-    address private dev_0_master = 0xc9d76DB051245846254d3aF4949f1094bEEeE3CE;  //  TODO: Ronald's master
-    address private dev_1_master = 0xb37277d6558D41fAdd2a291AB0bD398D4564Be40;  //  TODO: Ivan's master
+    address private constant dev_0_master = 0xc9d76DB051245846254d3aF4949f1094bEEeE3CE;  //  TODO: Ronald's master
+    address private constant dev_1_master = 0xb37277d6558D41fAdd2a291AB0bD398D4564Be40;  //  TODO: Ivan's master
     address private dev_0_escrow = 0x92ff09fe4EB65103c7A85c43CbBeafd345Ad41ee;  //  TODO: Ronald's escrow, empty in PROD
     address private dev_1_escrow = 0xA8265C1f1e158519C96A182fdAf14913D21e31E0;  //  TODO: Ivan's escrow, empty in PROD
 
