@@ -2,9 +2,6 @@ pragma solidity ^0.5.0;
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-/**
- * @dev This is the ONIGIRI smart Contract. 84% to lockBox withdraw at anytime - on withdrawal stops paying daily 
- */
 
 contract Onigiri {
     using SafeMath for uint256;
