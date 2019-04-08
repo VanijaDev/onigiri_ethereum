@@ -13,12 +13,21 @@ contract Onigiri {
     mapping (address => uint256) public lockBox; // user can withdraw at anytime 
     mapping (address => uint256) public withdrawnETH;
     mapping (address => uint256) public lastInvestment;
-    mapping (address => uint256) public affiliateCommisionTotal;
+    mapping (address => uint256) public affiliateCommision;
     mapping (address => uint256) private devCommission;
+
+    //  TODO: test total lockbox (84% form all investmaents) should always be present in contract
+
+    uint256 public lockBoxTotal;                    //  TODO test in withdrawLockBox
+    uint256 public lockBoxPlayers;                  //  TODO test in withdrawLockBox
+    uint256 public withdrawnEarningsTotal;          //  TODO test
+    uint256 public affiliateCommisionWithdrawnTotal;
+    uint256 public donatedTotal;
     
-    //  TODO: make updatable
-    address private dev_0 = 0xc9d76DB051245846254d3aF4949f1094bEEeE3CE;  //  TODO: Ronald's
-    address private dev_1 = 0xb37277d6558D41fAdd2a291AB0bD398D4564Be40;  //  TODO: Ivan's
+    address private dev_0_master = 0xc9d76DB051245846254d3aF4949f1094bEEeE3CE;  //  TODO: Ronald's master
+    address private dev_1_master = 0xb37277d6558D41fAdd2a291AB0bD398D4564Be40;  //  TODO: Ivan's master
+    address private dev_0_escrow = 0x92ff09fe4EB65103c7A85c43CbBeafd345Ad41ee;  //  TODO: Ronald's escrow, empty in PROD
+    address private dev_1_escrow = 0xA8265C1f1e158519C96A182fdAf14913D21e31E0;  //  TODO: Ivan's escrow, empty in PROD
 
     uint256 private constant minBalance = 0.05 ether;
     uint256 public constant minInvest = 0.025 ether;
@@ -41,36 +50,46 @@ contract Onigiri {
 
         if(_referral != msg.sender && _referral != address(0)) {
             uint256 commision = msg.value.mul(2).div(100);
-            affiliateCommisionTotal[_referral] = affiliateCommisionTotal[_referral].add(commision);
+            affiliateCommision[_referral] = affiliateCommision[_referral].add(commision);
         }
 
-        lockBox[msg.sender] = lockBox[msg.sender].add(msg.value.div(100).mul(84));
+        if(lockBox[msg.sender] == 0) {
+            lockBoxPlayers = lockBoxPlayers.add(1);
+        }
+
+        uint256 lockBoxAmount = lockBox[msg.sender].add(msg.value.div(100).mul(84));
+        lockBox[msg.sender] = lockBoxAmount;
+        lockBoxTotal = lockBoxTotal.add(lockBoxAmount);
         
         uint256 devCommision = msg.value.div(100).mul(2);
-        devCommission[dev_0] = devCommission[dev_0].add(devCommision);
-        devCommission[dev_1] = devCommission[dev_1].add(devCommision);
+        devCommission[dev_0_escrow] = devCommission[dev_0_escrow].add(devCommision);
+        devCommission[dev_1_escrow] = devCommission[dev_1_escrow].add(devCommision);
         
         lastInvestment[msg.sender] = now;
         investedETH[msg.sender] = investedETH[msg.sender].add(msg.value);
-        delete withdrawnETH[msg.sender];    //  TODO:
+        delete withdrawnETH[msg.sender];
+
+
     }
+
+    //  TODO: check lockbox is always available to withdraw.
     
     /**
      * Onigiry ecosystem.
      */
     function() external payable {
-        //  logic for 50/50 loser game
-
         uint256 devCommision = msg.value.div(100).mul(2);
-        devCommission[dev_0] = devCommission[dev_0].add(devCommision);
-        devCommission[dev_1] = devCommission[dev_1].add(devCommision);
+        devCommission[dev_0_escrow] = devCommission[dev_0_escrow].add(devCommision);
+        devCommission[dev_1_escrow] = devCommission[dev_1_escrow].add(devCommision);
+        
+        donatedTotal = donatedTotal.add(msg.value);
     }
 
     /**
      * @dev Returns commission for developer.
      */
     function getDevCommission() public view returns(uint256) {
-        require(msg.sender == dev_0 || msg.sender == dev_1, "not dev");
+        require(msg.sender == dev_0_escrow || msg.sender == dev_1_escrow , "not escrow");
         return devCommission[msg.sender];
     }
 
@@ -85,17 +104,28 @@ contract Onigiri {
         delete devCommission[msg.sender];
         msg.sender.transfer(commission);
     }
+
+    /**
+     * @dev Updates escrow address for developer.
+     * @param _address Address of escrow to be used.
+     */
+    function updateDevEscrow(address _address) public {
+        require(msg.sender == dev_0_master || msg.sender == dev_1_master, "not dev");
+        (msg.sender == dev_0_master) ? dev_0_escrow = _address : dev_1_escrow = _address;
+    }
     
     /**
      * @dev Withdraws affiliate commission for current address.
      */
-    function withdrawAffiliateCommisionTotal() public {
-        uint256 commision = affiliateCommisionTotal[msg.sender];
+    function withdrawAffiliateCommision() public {
+        uint256 commision = affiliateCommision[msg.sender];
         require(commision > 0, "no commission");
         require(address(this).balance.sub(commision) > minBalance, "not enough funds");
 
-        delete affiliateCommisionTotal[msg.sender];
+        delete affiliateCommision[msg.sender];
         msg.sender.transfer(commision);
+        
+        affiliateCommisionWithdrawnTotal = affiliateCommisionWithdrawnTotal.add(commision);
     }
 
     /**
@@ -109,6 +139,8 @@ contract Onigiri {
         lastInvestment[msg.sender] = now;
         withdrawnETH[msg.sender] = withdrawnETH[msg.sender].add(payoutAmount);
         msg.sender.transfer(payoutAmount);
+
+        withdrawnEarningsTotal = withdrawnEarningsTotal.add(payoutAmount);
     }
 
     /**
@@ -122,9 +154,9 @@ contract Onigiri {
         require(address(this).balance.sub(payoutAmount).sub(lockBoxAmount) > minBalance, "not enough funds");
 
         //  2% - to developers
-        uint256 devFee = lockBoxAmount.div(100);
-        devCommission[dev_0] = devCommission[dev_0].add(devFee);
-        devCommission[dev_1] = devCommission[dev_1].add(devFee);
+        uint256 devCommision = lockBoxAmount.div(100);
+        devCommission[dev_0_escrow] = devCommission[dev_0_escrow].add(devCommision);
+        devCommission[dev_1_escrow] = devCommission[dev_1_escrow].add(devCommision);
 
         //  3% - stays in contract
         uint256 lockBoxWithdraw = lockBoxAmount.div(100).mul(95);
@@ -132,6 +164,9 @@ contract Onigiri {
         uint256 payoutTotal = lockBoxWithdraw + payoutAmount;
         withdrawnETH[msg.sender] = withdrawnETH[msg.sender].add(payoutTotal);
         msg.sender.transfer(payoutTotal);
+
+        lockBoxPlayers = lockBoxPlayers.sub(1);
+        lockBoxTotal = lockBoxTotal.sub(lockBoxAmount);
 
         //  remove user totally
         delete investedETH[msg.sender];
@@ -159,7 +194,10 @@ contract Onigiri {
 
         lastInvestment[msg.sender] = now;
         investedETH[msg.sender] = investedETH[msg.sender].add(profit);
-        lockBox[msg.sender] = lockBox[msg.sender].add(profit.div(100).mul(85));
+        
+        uint256 lockBoxFromProfit = profit.div(100).mul(84);
+        lockBox[msg.sender] = lockBox[msg.sender].add(lockBoxFromProfit);
+        lockBoxTotal = lockBoxTotal.add(lockBoxFromProfit);
     }
     
     /**

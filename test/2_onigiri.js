@@ -7,16 +7,18 @@ const {
 } = require("openzeppelin-test-helpers");
 
 contract("Withdraw functional", (accounts) => {
-  const DEV_0 = accounts[9];
-  const DEV_1 = accounts[8];
+  const DEV_0_MASTER = accounts[9];
+  const DEV_1_MASTER = accounts[8];
+  const DEV_0_ESCROW = accounts[7];
+  const DEV_1_ESCROW = accounts[6];
 
-  const INVESTOR_0 = accounts[7];
-  const INVESTOR_1 = accounts[6];
+  const INVESTOR_0 = accounts[5];
+  const INVESTOR_1 = accounts[4];
 
-  const REFERRAL_0 = accounts[5];
-  const REFERRAL_1 = accounts[4];
+  const REFERRAL_0 = accounts[3];
+  const REFERRAL_1 = accounts[2];
 
-  const OTHER_ADDR = accounts[3];
+  const OTHER_ADDR = accounts[1];
 
   let onigiri;
 
@@ -47,23 +49,23 @@ contract("Withdraw functional", (accounts) => {
       });
 
       const DEV_COMMISIION_CORRECT = ether("0.03");
-      let balanceBefore = new web3.utils.BN(await web3.eth.getBalance(DEV_0));
+      let balanceBefore = new web3.utils.BN(await web3.eth.getBalance(DEV_0_ESCROW));
 
       //  withdraw
       let withdrawTX = await onigiri.withdrawDevCommission({
-        from: DEV_0
+        from: DEV_0_ESCROW
       });
       let gasUsed = withdrawTX.receipt.gasUsed;
       let gasPrice = (await web3.eth.getTransaction(withdrawTX.tx)).gasPrice;
       let weiUsed = new web3.utils.BN(gasUsed).mul(new web3.utils.BN(gasPrice));
-      let balanceAfter = new web3.utils.BN(await web3.eth.getBalance(DEV_0));
+      let balanceAfter = new web3.utils.BN(await web3.eth.getBalance(DEV_0_ESCROW));
 
       assert.equal(0, balanceAfter.sub(balanceBefore).sub(DEV_COMMISIION_CORRECT).add(weiUsed).toString(), "amount should be 0 for correct commision transferred");
     });
 
     it("should not allow to withrdawal if 0 amount", async () => {
       await shouldFail(onigiri.withdrawDevCommission({
-        from: DEV_0
+        from: DEV_0_ESCROW
       }), "should fail if commission == 0");
     });
 
@@ -88,33 +90,33 @@ contract("Withdraw functional", (accounts) => {
       });
 
       //  check dev commission before
-      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_0, {
-        from: DEV_0
+      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_0_ESCROW, {
+        from: DEV_0_ESCROW
       })) > 0);
-      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_1, {
-        from: DEV_1
+      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_1_ESCROW, {
+        from: DEV_1_ESCROW
       })) > 0);
 
       //  withdraw DEV_0 commission  
       await onigiri.withdrawDevCommission({
-        from: DEV_0
+        from: DEV_0_ESCROW
       });
-      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_0, {
-        from: DEV_0
+      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_0_ESCROW, {
+        from: DEV_0_ESCROW
       })) == 0);
-      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_1, {
-        from: DEV_1
+      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_1_ESCROW, {
+        from: DEV_1_ESCROW
       })) > 0);
 
       //  withdraw DEV_1 commission
       await onigiri.withdrawDevCommission({
-        from: DEV_1
+        from: DEV_1_ESCROW
       });
-      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_0, {
-        from: DEV_0
+      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_0_ESCROW, {
+        from: DEV_0_ESCROW
       })) == 0);
-      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_1, {
-        from: DEV_1
+      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_1_ESCROW, {
+        from: DEV_1_ESCROW
       })) == 0);
     });
 
@@ -134,12 +136,52 @@ contract("Withdraw functional", (accounts) => {
       //   from: DEV_0
       // })).toString());
       await shouldFail(onigiri.withdrawDevCommission({
-        from: DEV_1
+        from: DEV_1_ESCROW
       }), "should fail, because balance will become less than minimum aloowed");
+    });
+
+    it("should update dev_0_escrow from dev_0_master", async () => {
+      //  invest
+      //  1
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("0.5")
+      });
+
+      //  update
+      await onigiri.updateDevEscrow(OTHER_ADDR, {
+        from: DEV_0_MASTER
+      });
+
+      //  2
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("0.5")
+      });
+
+      //  2
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("0.5")
+      });
+
+      const DEV_COMMISIION_CORRECT = ether("0.02");
+      let balanceBefore_updatedEscrow = new web3.utils.BN(await web3.eth.getBalance(OTHER_ADDR));
+
+      //  withdraw
+      let withdrawTX = await onigiri.withdrawDevCommission({
+        from: OTHER_ADDR
+      });
+      let gasUsed = withdrawTX.receipt.gasUsed;
+      let gasPrice = (await web3.eth.getTransaction(withdrawTX.tx)).gasPrice;
+      let weiUsed = new web3.utils.BN(gasUsed).mul(new web3.utils.BN(gasPrice));
+      let balanceAfter_updatedEscrow = new web3.utils.BN(await web3.eth.getBalance(OTHER_ADDR));
+
+      assert.equal(0, balanceAfter_updatedEscrow.sub(balanceBefore_updatedEscrow).sub(DEV_COMMISIION_CORRECT).add(weiUsed).toString(), "amount should be 0 for correct commision transferred");
     });
   });
 
-  describe("withdrawAffiliateCommisionTotal", () => {
+  describe("withdrawAffiliateCommision", () => {
     it("should transfer correct amount to refferral account", async () => {
       //  invest
       //  1
@@ -164,7 +206,7 @@ contract("Withdraw functional", (accounts) => {
       let balanceBefore = new web3.utils.BN(await web3.eth.getBalance(REFERRAL_0));
 
       //  withdraw
-      let withdrawTX = await onigiri.withdrawAffiliateCommisionTotal({
+      let withdrawTX = await onigiri.withdrawAffiliateCommision({
         from: REFERRAL_0
       });
       let gasUsed = withdrawTX.receipt.gasUsed;
@@ -176,7 +218,7 @@ contract("Withdraw functional", (accounts) => {
     });
 
     it("should not allow to withrdawal if 0 amount", async () => {
-      await shouldFail(onigiri.withdrawAffiliateCommisionTotal({
+      await shouldFail(onigiri.withdrawAffiliateCommision({
         from: REFERRAL_0
       }), "should fail if commission == 0");
     });
@@ -202,13 +244,13 @@ contract("Withdraw functional", (accounts) => {
       });
 
       //  check commission before
-      assert.isTrue(new web3.utils.BN(await onigiri.affiliateCommisionTotal.call(REFERRAL_0)) > 0);
+      assert.isTrue(new web3.utils.BN(await onigiri.affiliateCommision.call(REFERRAL_0)) > 0);
 
       //  withdraw REFERRAL_0 commission  
-      await onigiri.withdrawAffiliateCommisionTotal({
+      await onigiri.withdrawAffiliateCommision({
         from: REFERRAL_0
       });
-      assert.isTrue(new web3.utils.BN(await onigiri.affiliateCommisionTotal.call(REFERRAL_0)) == 0);
+      assert.isTrue(new web3.utils.BN(await onigiri.affiliateCommision.call(REFERRAL_0)) == 0);
     });
 
     it("should leave minimum balance during the withdrawal", async () => {
@@ -221,9 +263,43 @@ contract("Withdraw functional", (accounts) => {
       await onigiri.withdrawEarnings({
         from: INVESTOR_0
       });
-      await shouldFail(onigiri.withdrawAffiliateCommisionTotal({
+      await shouldFail(onigiri.withdrawAffiliateCommision({
         from: REFERRAL_0
       }), "should fail, because balance will become less than minimum allowed");
+    });
+
+    it("should update affiliateCommisionWithdrawnTotal", async () => {
+      //  invest
+      //  1
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("0.5")
+      });
+
+      //  2
+      await onigiri.invest(REFERRAL_1, {
+        from: INVESTOR_0,
+        value: ether("0.5")
+      });
+
+      //  2
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("0.5")
+      });
+
+      assert.equal(0, new web3.utils.BN(ether("0")).cmp(new web3.utils.BN(await onigiri.affiliateCommisionWithdrawnTotal.call())), "affiliateCommisionWithdrawnTotal should be 0 before");
+
+      //  withdraw affiliate commissions
+      onigiri.withdrawAffiliateCommision({
+        from: REFERRAL_0
+      });
+      assert.equal(0, new web3.utils.BN(ether("0.02")).cmp(new web3.utils.BN(await onigiri.affiliateCommisionWithdrawnTotal.call())), "affiliateCommisionWithdrawnTotal should be 0 before");
+
+      onigiri.withdrawAffiliateCommision({
+        from: REFERRAL_1
+      });
+      assert.equal(0, new web3.utils.BN(ether("0.03")).cmp(new web3.utils.BN(await onigiri.affiliateCommisionWithdrawnTotal.call())), "affiliateCommisionWithdrawnTotal should be 0 before");
     });
   });
 
@@ -272,12 +348,66 @@ contract("Withdraw functional", (accounts) => {
       assert.equal((await web3.eth.getBlock(blockNumberWithdraw)).timestamp, new web3.utils.BN(await onigiri.lastInvestment.call(INVESTOR_0)));
     });
 
-    it("should update withdrawnETH correctly", async () => {
+    it("should update withdrawnETH correctly after single withdrawal", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("0.5")
+      });
 
+      await time.increase(time.duration.days(2));
+      assert.equal(0, await onigiri.withdrawnETH.call(INVESTOR_0), "withdrawnETH should be 0 before");
+      let earnings = await onigiri.calculateProfit.call(INVESTOR_0);
+
+      onigiri.withdrawEarnings({
+        from: INVESTOR_0
+      })
+
+      assert.equal(0, earnings.cmp(await onigiri.withdrawnETH.call(INVESTOR_0)), "wrong withdrawnETH after withdrawal");
+    });
+
+    it("should update withdrawnETH correctly after multiple withdrawals", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("0.5")
+      });
+
+      //  1
+      await time.increase(time.duration.days(2));
+      assert.equal(0, await onigiri.withdrawnETH.call(INVESTOR_0), "withdrawnETH should be 0 before");
+      let earnings_1 = await onigiri.calculateProfit.call(INVESTOR_0);
+      onigiri.withdrawEarnings({
+        from: INVESTOR_0
+      })
+
+      //  2
+      await time.increase(time.duration.days(3));
+      let earnings_2 = await onigiri.calculateProfit.call(INVESTOR_0);
+      onigiri.withdrawEarnings({
+        from: INVESTOR_0
+      })
+
+      assert.equal(0, earnings_1.add(earnings_2).cmp(await onigiri.withdrawnETH.call(INVESTOR_0)), "wrong withdrawnETH after withdrawal");
+
+      // console.log(await onigiri.withdrawnETH.call(INVESTOR_0));
+      // console.log((new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0))).toString());
+
+      // assert.equal(0, onigiri.withdrawnETH.call(INVESTOR_0).cmp());
     });
 
     it("should transfer earnings to withdrawal address", async () => {
 
+    });
+
+
+    it("should test", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("2")
+      });
+
+      await time.increase(time.duration.weeks(3));
+
+      console.log((new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0))).toString());
     });
   });
 });
