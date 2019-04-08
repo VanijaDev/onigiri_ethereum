@@ -168,9 +168,9 @@ contract Onigiri {
         require(address(this).balance.sub(commission) >= lockBoxTotal, "not enough funds");
 
         delete affiliateCommission[msg.sender];
-        msg.sender.transfer(commission);
-        
         affiliateCommissionWithdrawnTotal = affiliateCommissionWithdrawnTotal.add(commission);
+
+        msg.sender.transfer(commission);
     }
 
     /**
@@ -203,23 +203,11 @@ contract Onigiri {
         uint256 lockBoxAmount = investors[msg.sender].lockBox;
         require(lockBoxAmount > 0, "no investments");
 
-        msg.sender.transfer(lockBoxAmount);
-
         delete investors[msg.sender];
         investorsTotal = investorsTotal.sub(1);
         lockBoxTotal = lockBoxTotal.sub(lockBoxAmount);
-    }
 
-    /**
-     * @dev Calculates pending profit for provided customer.
-     * @param _investor Address of investor.
-     * @return pending profit.
-     */
-    function calculateProfit(address _investor) public view returns(uint256){
-        uint256 hourDifference = now.sub(investors[_investor].lastInvestmentTime).div(3600);
-        uint256 rate = percentRate(_investor);
-        uint256 calculatedPercent = hourDifference.mul(rate);
-        return investors[_investor].lockBox.div(100000).mul(calculatedPercent);
+        msg.sender.transfer(lockBoxAmount);
     }
     
     /**
@@ -237,13 +225,25 @@ contract Onigiri {
 
         lockBoxTotal = lockBoxTotal.add(lockBoxFromProfit);
     }
-    
+
     /**
      * @dev Gets balance for current contract.
      * @return balance for current contract.
      */
     function getBalance() public view returns(uint256){
         return address(this).balance;
+    }
+
+    /**
+     * @dev Calculates pending profit for provided customer.
+     * @param _investor Address of investor.
+     * @return pending profit.
+     */
+    function calculateProfit(address _investor) public view returns(uint256){
+        uint256 hourDifference = now.sub(investors[_investor].lastInvestmentTime).div(3600);
+        uint256 rate = percentRate(_investor);
+        uint256 calculatedPercent = hourDifference.mul(rate);
+        return investors[_investor].lockBox.div(100000).mul(calculatedPercent);
     }
 
     /**
