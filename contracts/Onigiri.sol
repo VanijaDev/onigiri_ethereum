@@ -68,8 +68,6 @@ contract Onigiri {
         lastInvestment[msg.sender] = now;
         investedETH[msg.sender] = investedETH[msg.sender].add(msg.value);
         delete withdrawnETH[msg.sender];
-
-
     }
 
     //  TODO: check lockbox is always available to withdraw.
@@ -131,27 +129,29 @@ contract Onigiri {
     /**
      * @dev Allows investor to withdraw earnings.
      */
+     // TODO: test for limit - lockboxTotal should be always available
     function withdrawEarnings() public {
-        require(lastInvestment[msg.sender] > 0, "no investments");
-        uint256 payoutAmount = calculateProfit(msg.sender);
-        require(address(this).balance.sub(payoutAmount) > minBalance, "not enough funds");
+        uint256 profit = calculateProfit(msg.sender);
+        require(profit > 0, "no profit");
+        require(address(this).balance.sub(profit) > minBalance, "not enough funds");
 
         lastInvestment[msg.sender] = now;
-        withdrawnETH[msg.sender] = withdrawnETH[msg.sender].add(payoutAmount);
-        msg.sender.transfer(payoutAmount);
+        withdrawnETH[msg.sender] = withdrawnETH[msg.sender].add(profit);
+        msg.sender.transfer(profit);
 
-        withdrawnEarningsTotal = withdrawnEarningsTotal.add(payoutAmount);
+        withdrawnEarningsTotal = withdrawnEarningsTotal.add(profit);
     }
 
     /**
      * @dev Allows investor to withdraw lockBox funds.
      */
+     // TODO: withdraws lockbox + earnings - not possible. Suggest to make separate functions
     function withdrawLockBox() public {
         require(lastInvestment[msg.sender] > 0, "no investments");
 
-        uint256 payoutAmount = calculateProfit(msg.sender);
+        uint256 profit = calculateProfit(msg.sender);
         uint256 lockBoxAmount = lockBox[msg.sender];
-        require(address(this).balance.sub(payoutAmount).sub(lockBoxAmount) > minBalance, "not enough funds");
+        require(address(this).balance.sub(profit).sub(lockBoxAmount) > minBalance, "not enough funds");
 
         //  2% - to developers
         uint256 devCommision = lockBoxAmount.div(100);
@@ -161,7 +161,7 @@ contract Onigiri {
         //  3% - stays in contract
         uint256 lockBoxWithdraw = lockBoxAmount.div(100).mul(95);
 
-        uint256 payoutTotal = lockBoxWithdraw + payoutAmount;
+        uint256 payoutTotal = lockBoxWithdraw + profit;
         withdrawnETH[msg.sender] = withdrawnETH[msg.sender].add(payoutTotal);
         msg.sender.transfer(payoutTotal);
 
