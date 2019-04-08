@@ -65,7 +65,7 @@ contract Onigiri {
         devCommission[dev_0_escrow] = devCommission[dev_0_escrow].add(devCommision);
         devCommission[dev_1_escrow] = devCommission[dev_1_escrow].add(devCommision);
         
-        lastInvestment[msg.sender] = now;
+        lastInvestmentTime[msg.sender] = now;
         investedETH[msg.sender] = investedETH[msg.sender].add(msg.value);
         delete withdrawnETH[msg.sender];
     }
@@ -135,7 +135,7 @@ contract Onigiri {
         require(profit > 0, "no profit");
         require(address(this).balance.sub(profit) > minBalance, "not enough funds");
 
-        lastInvestment[msg.sender] = now;
+        lastInvestmentTime[msg.sender] = now;
         withdrawnETH[msg.sender] = withdrawnETH[msg.sender].add(profit);
         msg.sender.transfer(profit);
 
@@ -147,7 +147,7 @@ contract Onigiri {
      */
      // TODO: withdraws lockbox + earnings - not possible. Suggest to make separate functions
     function withdrawLockBox() public {
-        require(lastInvestment[msg.sender] > 0, "no investments");
+        require(lastInvestmentTime[msg.sender] > 0, "no investments");
 
         uint256 profit = calculateProfit(msg.sender);
         uint256 lockBoxAmount = lockBox[msg.sender];
@@ -171,7 +171,7 @@ contract Onigiri {
         //  remove user totally
         delete investedETH[msg.sender];
         delete lockBox[msg.sender];
-        delete lastInvestment[msg.sender];
+        delete lastInvestmentTime[msg.sender];
     }
 
     /**
@@ -179,7 +179,7 @@ contract Onigiri {
      * @param _investor Address of investor.
      */
     function calculateProfit(address _investor) public view returns(uint256){
-        uint256 hourDifference = now.sub(lastInvestment[_investor]).div(3600);
+        uint256 hourDifference = now.sub(lastInvestmentTime[_investor]).div(3600);
         uint256 rate = percentRate(_investor);
         uint256 calculatedPercent = hourDifference.mul(rate);
         return lockBox[_investor].div(100000).mul(calculatedPercent);
@@ -192,7 +192,7 @@ contract Onigiri {
         uint256 profit = calculateProfit(msg.sender);
         require(profit > 0, "no profit");
 
-        lastInvestment[msg.sender] = now;
+        lastInvestmentTime[msg.sender] = now;
         investedETH[msg.sender] = investedETH[msg.sender].add(profit);
         
         uint256 lockBoxFromProfit = profit.div(100).mul(84);
