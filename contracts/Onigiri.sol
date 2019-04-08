@@ -12,7 +12,7 @@ contract Onigiri {
     mapping (address => uint256) public investedETH;
     mapping (address => uint256) public lockBox; // user can withdraw at anytime 
     mapping (address => uint256) public withdrawnETH;
-    mapping (address => uint256) public lastInvestment;
+    mapping (address => uint256) public lastInvestmentTime;
     mapping (address => uint256) public affiliateCommision;
     mapping (address => uint256) private devCommission;
 
