@@ -17,7 +17,7 @@ contract Onigiri {
     mapping (address => uint256) public affiliateCommission;
     mapping (address => uint256) private devCommission;
 
-    uint256 public investorsAmount;
+    uint256 public investorsTotal;
     uint256 public lockBoxTotal;
     uint256 public withdrawnEarningsTotal;
     uint256 public affiliateCommissionWithdrawnTotal;
@@ -112,7 +112,7 @@ contract Onigiri {
         }
 
         if(getLockBox(msg.sender) == 0) {
-            investorsAmount = investorsAmount.add(1);
+            investorsTotal = investorsTotal.add(1);
         }
 
         uint256 lockBoxAmount = msg.value.div(100).mul(84);
@@ -206,7 +206,7 @@ contract Onigiri {
         msg.sender.transfer(lockBoxAmount);
 
         delete investors[msg.sender];
-        investorsAmount = investorsAmount.sub(1);
+        investorsTotal = investorsTotal.sub(1);
         lockBoxTotal = lockBoxTotal.sub(lockBoxAmount);
     }
 
