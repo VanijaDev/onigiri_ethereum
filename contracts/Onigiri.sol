@@ -3,44 +3,105 @@ pragma solidity ^0.5.0;
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 /**
- * @dev This is the ONIGIRI smart Contract. 85% to lockBox withdraw at anytime - on withdrawal stops paying daily 
+ * @dev This is the ONIGIRI smart Contract. 84% to lockBox withdraw at anytime - on withdrawal stops paying daily 
  */
 
 contract Onigiri {
     using SafeMath for uint256;
+
+    struct InvestorInfo {
+        uint256 invested;
+        uint256 lockBox;
+        uint256 withdrawn;
+        uint256 lastInvestmentTime;
+    }
     
-    mapping (address => uint256) public investedETH;
-    mapping (address => uint256) public lockBox; // user can withdraw at anytime 
-    mapping (address => uint256) public withdrawnETH;
-    mapping (address => uint256) public lastInvestmentTime;
-    mapping (address => uint256) public affiliateCommision;
+    mapping (address => InvestorInfo) public investors;
+    mapping (address => uint256) public affiliateCommission;
     mapping (address => uint256) private devCommission;
 
-    //  TODO: test total lockbox (84% form all investmaents) should always be present in contract
-
-    uint256 public lockBoxTotal;                    //  TODO test in withdrawLockBox
-    uint256 public lockBoxPlayers;                  //  TODO test in withdrawLockBox
-    uint256 public withdrawnEarningsTotal;          //  TODO test
-    uint256 public affiliateCommisionWithdrawnTotal;
+    uint256 public investorsAmount;
+    uint256 public lockBoxTotal;
+    uint256 public withdrawnEarningsTotal;
+    uint256 public affiliateCommissionWithdrawnTotal;
+    
     uint256 public donatedTotal;
+    uint256 public gamesIncomeTotal;
     
     address private constant dev_0_master = 0xc9d76DB051245846254d3aF4949f1094bEEeE3CE;  //  TODO: Ronald's master
     address private constant dev_1_master = 0xb37277d6558D41fAdd2a291AB0bD398D4564Be40;  //  TODO: Ivan's master
     address private dev_0_escrow = 0x92ff09fe4EB65103c7A85c43CbBeafd345Ad41ee;  //  TODO: Ronald's escrow, empty in PROD
     address private dev_1_escrow = 0xA8265C1f1e158519C96A182fdAf14913D21e31E0;  //  TODO: Ivan's escrow, empty in PROD
 
-    uint256 private constant minBalance = 0.05 ether;
     uint256 public constant minInvest = 0.025 ether;
 
     /**
      * PUBLIC
      */
-    
-    /**
-     * @dev User invests funds
-     * @param _referral Referral address.
+
+     /**
+     * @dev Donation for Onigiry ecosystem.
      */
-    function invest(address _referral) public payable {
+    function() external payable {
+        uint256 devFee = msg.value.div(100);
+        devCommission[dev_0_escrow] = devCommission[dev_0_escrow].add(devFee);
+        devCommission[dev_1_escrow] = devCommission[dev_1_escrow].add(devFee);
+        
+        donatedTotal = donatedTotal.add(msg.value);
+    }
+
+    /**
+     * @dev Accepts income from games for Onigiry ecosystem.
+     */
+    function fromGame() external payable {
+        uint256 devFee = msg.value.div(100).mul(2);
+        devCommission[dev_0_escrow] = devCommission[dev_0_escrow].add(devFee);
+        devCommission[dev_1_escrow] = devCommission[dev_1_escrow].add(devFee);
+        
+        gamesIncomeTotal = gamesIncomeTotal.add(msg.value);
+    }
+
+    /**
+     * @dev Returns invested amount for investor.
+     * @param _address Investor address.
+     * @return invested amount.
+     */
+    function getInvested(address _address) public view returns(uint256) {
+        return investors[_address].invested;
+    }
+
+    /**
+     * @dev Returns lockbox amount for investor.
+     * @param _address Investor address.
+     * @return lockbox amount.
+     */
+    function getLockBox(address _address) public view returns(uint256) {
+        return investors[_address].lockBox;
+    }
+
+    /**
+     * @dev Returns withdrawn amount for investor.
+     * @param _address Investor address.
+     * @return withdrawn amount.
+     */
+    function getWithdrawn(address _address) public view returns(uint256) {
+        return investors[_address].withdrawn;
+    }
+
+    /**
+     * @dev Returns last investment time amount for investor.
+     * @param _address Investor address.
+     * @return last investment time.
+     */
+    function getLastInvestmentTime(address _address) public view returns(uint256) {
+        return investors[_address].lastInvestmentTime;
+    }
+
+    /**
+     * @dev User invests funds.
+     * @param _affiliate affiliate address.
+     */
+    function invest(address _affiliate) public payable {
         require(msg.value >= minInvest, "min 0.025 eth");
 
         uint256 profit = calculateProfit(msg.sender);
@@ -48,43 +109,32 @@ contract Onigiri {
             msg.sender.transfer(profit);
         }
 
-        if(_referral != msg.sender && _referral != address(0)) {
-            uint256 commision = msg.value.mul(2).div(100);
-            affiliateCommision[_referral] = affiliateCommision[_referral].add(commision);
+        if(_affiliate != msg.sender && _affiliate != address(0)) {
+            uint256 commission = msg.value.mul(2).div(100);
+            affiliateCommission[_affiliate] = affiliateCommission[_affiliate].add(commission);
         }
 
-        if(lockBox[msg.sender] == 0) {
-            lockBoxPlayers = lockBoxPlayers.add(1);
+        if(getLockBox(msg.sender) == 0) {
+            investorsAmount = investorsAmount.add(1);
         }
 
-        uint256 lockBoxAmount = lockBox[msg.sender].add(msg.value.div(100).mul(84));
-        lockBox[msg.sender] = lockBoxAmount;
+        uint256 lockBoxAmount = msg.value.div(100).mul(84);
+        investors[msg.sender].lockBox = investors[msg.sender].lockBox.add(lockBoxAmount);
+        investors[msg.sender].invested = investors[msg.sender].invested.add(msg.value);
+        investors[msg.sender].lastInvestmentTime = now;
+        delete investors[msg.sender].withdrawn;
+        
         lockBoxTotal = lockBoxTotal.add(lockBoxAmount);
         
-        uint256 devCommision = msg.value.div(100).mul(2);
-        devCommission[dev_0_escrow] = devCommission[dev_0_escrow].add(devCommision);
-        devCommission[dev_1_escrow] = devCommission[dev_1_escrow].add(devCommision);
-        
-        lastInvestmentTime[msg.sender] = now;
-        investedETH[msg.sender] = investedETH[msg.sender].add(msg.value);
-        delete withdrawnETH[msg.sender];
+        //  4% - to developers
+        uint256 devFee = msg.value.div(100).mul(2);
+        devCommission[dev_0_escrow] = devCommission[dev_0_escrow].add(devFee);
+        devCommission[dev_1_escrow] = devCommission[dev_1_escrow].add(devFee);
     }
-
-    //  TODO: check lockbox is always available to withdraw.
     
     /**
-     * Onigiry ecosystem.
-     */
-    function() external payable {
-        uint256 devCommision = msg.value.div(100).mul(2);
-        devCommission[dev_0_escrow] = devCommission[dev_0_escrow].add(devCommision);
-        devCommission[dev_1_escrow] = devCommission[dev_1_escrow].add(devCommision);
-        
-        donatedTotal = donatedTotal.add(msg.value);
-    }
-
-    /**
-     * @dev Returns commission for developer.
+     * @dev Calculates commission for developer.
+     * @return commission for developer.
      */
     function getDevCommission() public view returns(uint256) {
         require(msg.sender == dev_0_escrow || msg.sender == dev_1_escrow , "not escrow");
@@ -97,7 +147,7 @@ contract Onigiri {
     function withdrawDevCommission() public {
         uint256 commission = devCommission[msg.sender];
         require(commission > 0, "no dev commission");
-        require(address(this).balance.sub(commission) > minBalance, "not enough funds");
+        require(address(this).balance.sub(commission) >= lockBoxTotal, "not enough funds");
 
         delete devCommission[msg.sender];
         msg.sender.transfer(commission);
@@ -115,74 +165,64 @@ contract Onigiri {
     /**
      * @dev Withdraws affiliate commission for current address.
      */
-    function withdrawAffiliateCommision() public {
-        uint256 commision = affiliateCommision[msg.sender];
-        require(commision > 0, "no commission");
-        require(address(this).balance.sub(commision) > minBalance, "not enough funds");
+    function withdrawAffiliateCommission() public {
+        uint256 commission = affiliateCommission[msg.sender];
+        require(commission > 0, "no commission");
+        require(address(this).balance.sub(commission) >= lockBoxTotal, "not enough funds");
 
-        delete affiliateCommision[msg.sender];
-        msg.sender.transfer(commision);
+        delete affiliateCommission[msg.sender];
+        msg.sender.transfer(commission);
         
-        affiliateCommisionWithdrawnTotal = affiliateCommisionWithdrawnTotal.add(commision);
+        affiliateCommissionWithdrawnTotal = affiliateCommissionWithdrawnTotal.add(commission);
     }
 
     /**
      * @dev Allows investor to withdraw earnings.
      */
-     // TODO: test for limit - lockboxTotal should be always available
     function withdrawEarnings() public {
         uint256 profit = calculateProfit(msg.sender);
         require(profit > 0, "no profit");
-        require(address(this).balance.sub(profit) > minBalance, "not enough funds");
+        require(address(this).balance.sub(profit) >= lockBoxTotal, "not enough funds");
 
-        lastInvestmentTime[msg.sender] = now;
-        withdrawnETH[msg.sender] = withdrawnETH[msg.sender].add(profit);
-        msg.sender.transfer(profit);
+        investors[msg.sender].lastInvestmentTime = now;
+        investors[msg.sender].withdrawn = investors[msg.sender].withdrawn.add(profit);
 
         withdrawnEarningsTotal = withdrawnEarningsTotal.add(profit);
+        
+        //  2% - to developers
+        uint256 devFee = profit.div(100);
+        devCommission[dev_0_escrow] = devCommission[dev_0_escrow].add(devFee);
+        devCommission[dev_1_escrow] = devCommission[dev_1_escrow].add(devFee);
+        
+        //  3% - stays in contract
+        msg.sender.transfer(profit.mul(95));
     }
 
     /**
-     * @dev Allows investor to withdraw lockBox funds.
+     * @dev Allows investor to withdraw lockBox funds, close deposit and clear all data.
+     * @notice Pending profit stays in contract.
      */
-     // TODO: withdraws lockbox + earnings - not possible. Suggest to make separate functions
-    function withdrawLockBox() public {
-        require(lastInvestmentTime[msg.sender] > 0, "no investments");
+    function withdrawLockBoxAndClose() public {
+        uint256 lockBoxAmount = investors[msg.sender].lockBox;
+        require(lockBoxAmount > 0, "no investments");
 
-        uint256 profit = calculateProfit(msg.sender);
-        uint256 lockBoxAmount = lockBox[msg.sender];
-        require(address(this).balance.sub(profit).sub(lockBoxAmount) > minBalance, "not enough funds");
+        msg.sender.transfer(lockBoxAmount);
 
-        //  2% - to developers
-        uint256 devCommision = lockBoxAmount.div(100);
-        devCommission[dev_0_escrow] = devCommission[dev_0_escrow].add(devCommision);
-        devCommission[dev_1_escrow] = devCommission[dev_1_escrow].add(devCommision);
-
-        //  3% - stays in contract
-        uint256 lockBoxWithdraw = lockBoxAmount.div(100).mul(95);
-
-        uint256 payoutTotal = lockBoxWithdraw + profit;
-        withdrawnETH[msg.sender] = withdrawnETH[msg.sender].add(payoutTotal);
-        msg.sender.transfer(payoutTotal);
-
-        lockBoxPlayers = lockBoxPlayers.sub(1);
+        delete investors[msg.sender];
+        investorsAmount = investorsAmount.sub(1);
         lockBoxTotal = lockBoxTotal.sub(lockBoxAmount);
-
-        //  remove user totally
-        delete investedETH[msg.sender];
-        delete lockBox[msg.sender];
-        delete lastInvestmentTime[msg.sender];
     }
 
     /**
      * @dev Calculates pending profit for provided customer.
      * @param _investor Address of investor.
+     * @return pending profit.
      */
     function calculateProfit(address _investor) public view returns(uint256){
-        uint256 hourDifference = now.sub(lastInvestmentTime[_investor]).div(3600);
+        uint256 hourDifference = now.sub(investors[_investor].lastInvestmentTime).div(3600);
         uint256 rate = percentRate(_investor);
         uint256 calculatedPercent = hourDifference.mul(rate);
-        return lockBox[_investor].div(100000).mul(calculatedPercent);
+        return investors[_investor].lockBox.div(100000).mul(calculatedPercent);
     }
     
     /**
@@ -191,17 +231,19 @@ contract Onigiri {
     function reinvestProfit() public {
         uint256 profit = calculateProfit(msg.sender);
         require(profit > 0, "no profit");
-
-        lastInvestmentTime[msg.sender] = now;
-        investedETH[msg.sender] = investedETH[msg.sender].add(profit);
+        require(address(this).balance.sub(profit) >= lockBoxTotal, "not enough funds");
         
         uint256 lockBoxFromProfit = profit.div(100).mul(84);
-        lockBox[msg.sender] = lockBox[msg.sender].add(lockBoxFromProfit);
+        investors[msg.sender].lockBox = investors[msg.sender].lockBox.add(lockBoxFromProfit);
+        investors[msg.sender].lastInvestmentTime = now;
+        investors[msg.sender].invested = investors[msg.sender].invested.add(profit);
+
         lockBoxTotal = lockBoxTotal.add(lockBoxFromProfit);
     }
     
     /**
-     * @dev Shows balance for current contract.
+     * @dev Gets balance for current contract.
+     * @return balance for current contract.
      */
     function getBalance() public view returns(uint256){
         return address(this).balance;
@@ -214,18 +256,18 @@ contract Onigiri {
     /**
      * @dev Calculates rate for lockBox balance for msg.sender.
      * @param _investor Address of investor.
+     * @return rate for lockBox balance.
      */
     function percentRate(address _investor) private view returns(uint) {
         uint256 stepLow = .15 ether;    //  1.8%
         uint256 stepMiddle = 150 ether; //  3.6%
         uint256 stepHigh = 1000 ether;  // 8.4%
 
-        //  0.075% per hour
         uint256 dailyLowPercent = 75;       // 1.8%
         uint256 dailyMiddlePercent = 150;   // 3.6%
         uint256 dailyHighPercent = 350;     // 8.4%
         
-        uint balance = lockBox[_investor];
+        uint balance = investors[_investor].lockBox;
         if (balance >= stepHigh) {
             return dailyHighPercent;
         } else if (balance >= stepMiddle && balance < stepHigh) {
