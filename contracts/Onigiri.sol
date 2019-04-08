@@ -107,7 +107,7 @@ contract Onigiri {
         }
 
         if(_affiliate != msg.sender && _affiliate != address(0)) {
-            uint256 commission = msg.value.mul(2).div(100);
+            uint256 commission = msg.value.div(100).mul(2);
             affiliateCommission[_affiliate] = affiliateCommission[_affiliate].add(commission);
         }
 
