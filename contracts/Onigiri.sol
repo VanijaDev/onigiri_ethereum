@@ -16,7 +16,7 @@ contract Onigiri {
     
     mapping (address => InvestorInfo) public investors;
     mapping (address => uint256) public affiliateCommission;
-    mapping (address => uint256) private devCommission;
+    mapping (address => uint256) public devCommission;
 
     uint256 public investorsTotal;
     uint256 public lockboxTotal;
@@ -113,6 +113,14 @@ contract Onigiri {
     }
 
     /**
+     * @dev Calculates sum lockboxes and dev fees.
+     * @return Amount of guaranteed balance by constract.
+     */
+    function guaranteedBalance() public view returns(uint256) {
+        return lockboxTotal.add(devCommission[dev_0_escrow]).add(devCommission[dev_1_escrow]);
+    }
+
+    /**
      * @dev User invests funds.
      * @param _affiliate affiliate address.
      * TESTED
@@ -147,16 +155,6 @@ contract Onigiri {
         uint256 devFee = msg.value.div(100).mul(2);
         devCommission[dev_0_escrow] = devCommission[dev_0_escrow].add(devFee);
         devCommission[dev_1_escrow] = devCommission[dev_1_escrow].add(devFee);
-    }
-    
-    /**
-     * @dev Calculates commission for developer.
-     * @return commission for developer.
-     * TESTED
-     */
-    function getDevCommission() public view returns(uint256) {
-        require(msg.sender == dev_0_escrow || msg.sender == dev_1_escrow , "not escrow");
-        return devCommission[msg.sender];
     }
 
     /**

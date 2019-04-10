@@ -42,12 +42,8 @@ contract("Investments and donations", (accounts) => {
     });
 
     it("should update dev fee correctly", async () => {
-      assert.equal(0, ether("0").cmp(await onigiri.getDevCommission.call({
-        from: DEV_0_ESCROW
-      })), "dev 0 fee should 0 before");
-      assert.equal(0, ether("0").cmp(await onigiri.getDevCommission.call({
-        from: DEV_1_ESCROW
-      })), "dev 1 fee should 0 before");
+      assert.equal(0, ether("0").cmp(await onigiri.devCommission.call(DEV_0_ESCROW)), "dev 0 fee should 0 before");
+      assert.equal(0, ether("0").cmp(await onigiri.devCommission.call(DEV_1_ESCROW)), "dev 1 fee should 0 before");
 
       await web3.eth.sendTransaction({
         from: OTHER_ADDR,
@@ -55,12 +51,8 @@ contract("Investments and donations", (accounts) => {
         value: ether("1")
       });
 
-      assert.equal(0, ether("0.01").cmp(await onigiri.getDevCommission.call({
-        from: DEV_0_ESCROW
-      })), "dev 0 fee should 0.01 after");
-      assert.equal(0, ether("0.01").cmp(await onigiri.getDevCommission.call({
-        from: DEV_1_ESCROW
-      })), "dev 1 fee should 0.01 after");
+      assert.equal(0, ether("0.01").cmp(await onigiri.devCommission.call(DEV_0_ESCROW)), "dev 0 fee should 0.01 after");
+      assert.equal(0, ether("0.01").cmp(await onigiri.devCommission.call(DEV_1_ESCROW)), "dev 1 fee should 0.01 after");
     });
   });
 
@@ -77,24 +69,16 @@ contract("Investments and donations", (accounts) => {
     });
 
     it("should update dev fee correctly", async () => {
-      assert.equal(0, ether("0").cmp(await onigiri.getDevCommission.call({
-        from: DEV_0_ESCROW
-      })), "dev 0 fee should 0 before");
-      assert.equal(0, ether("0").cmp(await onigiri.getDevCommission.call({
-        from: DEV_1_ESCROW
-      })), "dev 1 fee should 0 before");
+      assert.equal(0, ether("0").cmp(await onigiri.devCommission.call(DEV_0_ESCROW)), "dev 0 fee should 0 before");
+      assert.equal(0, ether("0").cmp(await onigiri.devCommission.call(DEV_1_ESCROW)), "dev 1 fee should 0 before");
 
       await onigiri.fromGame({
         from: OTHER_ADDR,
         value: ether("1")
       });
 
-      assert.equal(0, ether("0.02").cmp(await onigiri.getDevCommission.call({
-        from: DEV_0_ESCROW
-      })), "dev 0 fee should 0.02 after");
-      assert.equal(0, ether("0.02").cmp(await onigiri.getDevCommission.call({
-        from: DEV_1_ESCROW
-      })), "dev 1 fee should 0.02 after");
+      assert.equal(0, ether("0.02").cmp(await onigiri.devCommission.call(DEV_0_ESCROW)), "dev 0 fee should 0.02 after");
+      assert.equal(0, ether("0.02").cmp(await onigiri.devCommission.call(DEV_1_ESCROW)), "dev 1 fee should 0.02 after");
     });
   });
 
@@ -310,10 +294,10 @@ contract("Investments and donations", (accounts) => {
     });
 
     it("should update devCommission correctly on single investment", async () => {
-      assert.equal(0, ether("0").cmp(await onigiri.getDevCommission.call(DEV_0_ESCROW, {
+      assert.equal(0, ether("0").cmp(await onigiri.devCommission.call(DEV_0_ESCROW, {
         from: DEV_0_ESCROW
       })), "devCommission for DEV_0_ESCROW should be 0 before");
-      assert.equal(0, ether("0").cmp(await onigiri.getDevCommission.call(DEV_1_ESCROW, {
+      assert.equal(0, ether("0").cmp(await onigiri.devCommission.call(DEV_1_ESCROW, {
         from: DEV_1_ESCROW
       })), "devCommission for DEV_1_ESCROW should be 0 before");
 
@@ -322,19 +306,19 @@ contract("Investments and donations", (accounts) => {
         value: ether("1")
       });
 
-      assert.equal(0, ether("0.02").cmp(await onigiri.getDevCommission.call(DEV_0_ESCROW, {
+      assert.equal(0, ether("0.02").cmp(await onigiri.devCommission.call(DEV_0_ESCROW, {
         from: DEV_0_ESCROW
       })), "devCommission for DEV_0_ESCROW should be 0.02 after");
-      assert.equal(0, ether("0.02").cmp(await onigiri.getDevCommission.call(DEV_1_ESCROW, {
+      assert.equal(0, ether("0.02").cmp(await onigiri.devCommission.call(DEV_1_ESCROW, {
         from: DEV_1_ESCROW
       })), "devCommission for DEV_1_ESCROW should be 0.02 after");
     });
 
     it("should update devCommission correctly on multiple investments", async () => {
-      assert.equal(0, ether("0").cmp(await onigiri.getDevCommission.call(DEV_0_ESCROW, {
+      assert.equal(0, ether("0").cmp(await onigiri.devCommission.call(DEV_0_ESCROW, {
         from: DEV_0_ESCROW
       })), "devCommission for DEV_0_ESCROW should be 0 before");
-      assert.equal(0, ether("0").cmp(await onigiri.getDevCommission.call(DEV_1_ESCROW, {
+      assert.equal(0, ether("0").cmp(await onigiri.devCommission.call(DEV_1_ESCROW, {
         from: DEV_1_ESCROW
       })), "devCommission for DEV_1_ESCROW should be 0 before");
 
@@ -356,10 +340,10 @@ contract("Investments and donations", (accounts) => {
         value: ether("1")
       });
 
-      assert.equal(0, ether("0.06").cmp(await onigiri.getDevCommission.call(DEV_0_ESCROW, {
+      assert.equal(0, ether("0.06").cmp(await onigiri.devCommission.call(DEV_0_ESCROW, {
         from: DEV_0_ESCROW
       })), "devCommission for DEV_0_ESCROW should be 0.06 after");
-      assert.equal(0, ether("0.06").cmp(await onigiri.getDevCommission.call(DEV_1_ESCROW, {
+      assert.equal(0, ether("0.06").cmp(await onigiri.devCommission.call(DEV_1_ESCROW, {
         from: DEV_1_ESCROW
       })), "devCommission for DEV_1_ESCROW should be 0.06 after");
     });

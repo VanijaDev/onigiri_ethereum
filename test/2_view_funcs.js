@@ -157,12 +157,6 @@ contract("View functions", (accounts) => {
   });
 
   describe("developers commission", () => {
-    it("should fail if not escrow sender", async () => {
-      await shouldFail(onigiri.getDevCommission.call(OTHER_ADDR, {
-        from: OTHER_ADDR
-      }), "should fail if not escrow sender");
-    });
-
     it("should update devCommission after after all types of dev income: 1) invest; 2) donate; 3) from game; 4) user withdraw", async () => {
       //  1 - invest == 0.02
       await onigiri.invest(REFERRAL_0, {
@@ -192,10 +186,10 @@ contract("View functions", (accounts) => {
         from: INVESTOR_0
       });
 
-      assert.equal(0, (ether("0.05").add(devCommissionFromProfit)).cmp(await onigiri.getDevCommission.call(DEV_0_ESCROW, {
+      assert.equal(0, (ether("0.05").add(devCommissionFromProfit)).cmp(await onigiri.devCommission.call(DEV_0_ESCROW, {
         from: DEV_0_ESCROW
       })), "DEV_0_ESCROW is wrong");
-      assert.equal(0, (ether("0.05").add(devCommissionFromProfit)).cmp(await onigiri.getDevCommission.call(DEV_1_ESCROW, {
+      assert.equal(0, (ether("0.05").add(devCommissionFromProfit)).cmp(await onigiri.devCommission.call(DEV_1_ESCROW, {
         from: DEV_1_ESCROW
       })), "DEV_1_ESCROW is wrong");
     });
@@ -362,10 +356,10 @@ contract("View functions", (accounts) => {
       });
 
       //  check dev commission before
-      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_0_ESCROW, {
+      assert.isTrue(new web3.utils.BN(await onigiri.devCommission.call(DEV_0_ESCROW, {
         from: DEV_0_ESCROW
       })) > 0);
-      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_1_ESCROW, {
+      assert.isTrue(new web3.utils.BN(await onigiri.devCommission.call(DEV_1_ESCROW, {
         from: DEV_1_ESCROW
       })) > 0);
 
@@ -373,10 +367,10 @@ contract("View functions", (accounts) => {
       await onigiri.withdrawDevCommission({
         from: DEV_0_ESCROW
       });
-      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_0_ESCROW, {
+      assert.isTrue(new web3.utils.BN(await onigiri.devCommission.call(DEV_0_ESCROW, {
         from: DEV_0_ESCROW
       })) == 0);
-      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_1_ESCROW, {
+      assert.isTrue(new web3.utils.BN(await onigiri.devCommission.call(DEV_1_ESCROW, {
         from: DEV_1_ESCROW
       })) > 0);
 
@@ -384,10 +378,10 @@ contract("View functions", (accounts) => {
       await onigiri.withdrawDevCommission({
         from: DEV_1_ESCROW
       });
-      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_0_ESCROW, {
+      assert.isTrue(new web3.utils.BN(await onigiri.devCommission.call(DEV_0_ESCROW, {
         from: DEV_0_ESCROW
       })) == 0);
-      assert.isTrue(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_1_ESCROW, {
+      assert.isTrue(new web3.utils.BN(await onigiri.devCommission.call(DEV_1_ESCROW, {
         from: DEV_1_ESCROW
       })) == 0);
     });
@@ -404,7 +398,7 @@ contract("View functions", (accounts) => {
         from: INVESTOR_0
       });
       // console.log(await web3.eth.getBalance(onigiri.address));
-      // console.log(new web3.utils.BN(await onigiri.getDevCommission.call(DEV_0, {
+      // console.log(new web3.utils.BN(await onigiri.devCommission.call(DEV_0, {
       //   from: DEV_0
       // })).toString());
       await shouldFail(onigiri.withdrawDevCommission({

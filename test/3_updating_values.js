@@ -52,7 +52,7 @@ contract("Updating values", (accounts) => {
       value: ether("0.5")
     });
 
-    assert.equal(0, ether("0.02").cmp(await onigiri.getDevCommission.call(OTHER_ADDR, {
+    assert.equal(0, ether("0.02").cmp(await onigiri.devCommission.call(OTHER_ADDR, {
       from: OTHER_ADDR
     })), "OTHER_ADDR dev commission is wrong");
   });
