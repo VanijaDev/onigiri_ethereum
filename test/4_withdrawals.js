@@ -455,4 +455,94 @@ contract("View functions", (accounts) => {
       assert.equal(0, (profit.div(new web3.utils.BN(100)).mul(new web3.utils.BN(95)).cmp(balance_after.add(weiUsed).sub(balance_before))), "95% of profit shouold be transferred as profit");
     });
   });
+
+  describe("withdrawLockBoxAndClose", async () => {
+    it("should fail if no lockbox", async () => {
+      await shouldFail(onigiri.withdrawLockBoxAndClose({
+        from: INVESTOR_0
+      }), "should fail if no deposits made");
+    });
+
+    it("should remove all data about investor", async () => {
+      //  1 - invest
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+
+      //  2 withdraw
+      await time.increase(time.duration.days(1));
+      await onigiri.withdrawProfit({
+        from: INVESTOR_0
+      });
+
+      //  3 investor data should be populated
+      assert.isTrue((await onigiri.investors.call(INVESTOR_0)).invested > 0, "invested should be > 0");
+      assert.isTrue((await onigiri.investors.call(INVESTOR_0)).lockbox > 0, "lockbox should be > 0");
+      assert.isTrue((await onigiri.investors.call(INVESTOR_0)).withdrawn > 0, "withdrawn should be > 0");
+      assert.isTrue((await onigiri.investors.call(INVESTOR_0)).lastInvestmentTime > 0, "lastInvestmentTime should be > 0");
+
+      //  4 - withdrawLockBoxAndClose INVESTOR_0
+      await time.increase(time.duration.days(1));
+      await onigiri.withdrawLockBoxAndClose({
+        from: INVESTOR_0
+      });
+
+      //  5 investor data should be populated
+      assert.isTrue((await onigiri.investors.call(INVESTOR_0)).invested == 0, "invested should be == 0");
+      assert.isTrue((await onigiri.investors.call(INVESTOR_0)).lockbox == 0, "lockbox should be == 0");
+      assert.isTrue((await onigiri.investors.call(INVESTOR_0)).withdrawn == 0, "withdrawn should be == 0");
+      assert.isTrue((await onigiri.investors.call(INVESTOR_0)).lastInvestmentTime == 0, "lastInvestmentTime should be == 0");
+    });
+
+    it("should substract investors total amount", async () => {
+      //  1 - invest
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+
+      await onigiri.invest(REFERRAL_1, {
+        from: INVESTOR_1,
+        value: ether("1")
+      });
+
+      await onigiri.invest(REFERRAL_1, {
+        from: OTHER_ADDR,
+        value: ether("1")
+      });
+
+      assert.equal(0, (await onigiri.investorsCount.call()).cmp(new web3.utils.BN(3)), "should be 3 investors before");
+
+      //  2 withdraw
+      await time.increase(time.duration.days(1));
+      await onigiri.withdrawLockBoxAndClose({
+        from: INVESTOR_0
+      });
+      assert.equal(0, (await onigiri.investorsCount.call()).cmp(new web3.utils.BN(2)), "should be 2 investors after");
+    });
+
+    it("should transfer correct amount to investor", async () => {
+      //  1 - invest
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+
+      let investor_0_balance_before = new web3.utils.BN(await web3.eth.getBalance(INVESTOR_0));
+
+      let lockboxAmount = (await onigiri.investors.call(INVESTOR_0)).lockbox;
+      console.log();
+      let closeTX = await onigiri.withdrawLockBoxAndClose({
+        from: INVESTOR_0
+      });
+      let gasUsed = closeTX.receipt.gasUsed;
+      let gasPrice = (await web3.eth.getTransaction(closeTX.tx)).gasPrice;
+      let weiUsed = new web3.utils.BN(gasUsed).mul(new web3.utils.BN(gasPrice));
+
+      let investor_0_balance_after = new web3.utils.BN(await web3.eth.getBalance(INVESTOR_0));
+
+      assert.equal(0, lockboxAmount.cmp(investor_0_balance_after.add(weiUsed).sub(investor_0_balance_before)), "wrong lockbox transferred");
+    });
+  });
 });
