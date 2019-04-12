@@ -150,5 +150,105 @@ contract("View functions", (accounts) => {
     });
   });
 
+  describe("withdrawAffiliateCommission", () => {
+    it("should fail if no commission", async () => {
+      await shouldFail(onigiri.withdrawAffiliateCommission({
+        from: REFERRAL_0
+      }), "should fail if no commission");
+    });
 
+    it("should fail if left amount will be less, than guaranteedBalance", async () => {
+      //  invest
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+
+      // console.log("guaranteedBalance: ", (await onigiri.guaranteedBalance.call()).toString());
+      await time.increase(time.duration.hours(355));
+      let profit = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0)); //  0.11928 ETH + 0.84 ETH lockbox + 0.04 ETH dev commission = 0.99928 ETH
+      // console.log("profit: ", profit.toString());
+      await onigiri.withdrawProfit({
+        from: INVESTOR_0
+      });
+      // console.log("getBalance: ", new web3.utils.BN(await web3.eth.getBalance(onigiri.address)).toString());
+
+      //  withdraw
+      await shouldFail(onigiri.withdrawAffiliateCommission({
+        from: REFERRAL_0
+      }), "should fail if left amount will be less, than guaranteedBalance");
+    });
+
+    it("should delete commission balance after withdrawal", async () => {
+      //  invest
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+
+      await assert.isTrue(await onigiri.affiliateCommission.call(REFERRAL_0) > 0, "affiliateCommission should be > 0");
+
+      //  withdraw
+      await onigiri.withdrawAffiliateCommission({
+        from: REFERRAL_0
+      });
+
+      await assert.isTrue(await onigiri.affiliateCommission.call(REFERRAL_0) == 0, "affiliateCommission should be == 0");
+    });
+
+    it("should update affiliateCommissionWithdrawnTotal after withdrawals", async () => {
+      // 1 - invest
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+
+      let referral_0_commission = await onigiri.affiliateCommission.call(REFERRAL_0);
+
+      // 1 - withdraw
+      await onigiri.withdrawAffiliateCommission({
+        from: REFERRAL_0
+      });
+
+      assert.equal(0, new web3.utils.BN(await onigiri.affiliateCommissionWithdrawnTotal.call()).cmp(referral_0_commission), "wrong affiliateCommissionWithdrawnTotal after first withdrawal");
+
+      // 2 - invest
+      await onigiri.invest(REFERRAL_1, {
+        from: INVESTOR_1,
+        value: ether("0.5")
+      });
+
+      let referral_1_commission = await onigiri.affiliateCommission.call(REFERRAL_1);
+
+      // 2 - withdraw
+      await onigiri.withdrawAffiliateCommission({
+        from: REFERRAL_1
+      });
+
+      assert.equal(0, new web3.utils.BN(await onigiri.affiliateCommissionWithdrawnTotal.call()).cmp(referral_0_commission.add(referral_1_commission)), "wrong affiliateCommissionWithdrawnTotal after second withdrawal");
+    });
+
+    it("should transfer correct amount of eth", async () => {
+      //  invest
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+
+      let dev_0_escrow_commission_balance = await onigiri.devCommission.call(DEV_0_ESCROW);
+      let dev_0_escrow_contract_balance_before = new web3.utils.BN(await web3.eth.getBalance(DEV_0_ESCROW));
+
+      // withdraw
+      let withdrawTX = await onigiri.withdrawDevCommission({
+        from: DEV_0_ESCROW
+      });
+      let gasUsed = withdrawTX.receipt.gasUsed;
+      let gasPrice = (await web3.eth.getTransaction(withdrawTX.tx)).gasPrice;
+      let weiUsed = new web3.utils.BN(gasUsed).mul(new web3.utils.BN(gasPrice));
+
+      let dev_0_escrow_contract_balance_after = new web3.utils.BN(await web3.eth.getBalance(DEV_0_ESCROW));
+
+      assert.equal(0, dev_0_escrow_commission_balance.cmp(dev_0_escrow_contract_balance_after.add(weiUsed).sub(dev_0_escrow_contract_balance_before)), "wrong commission was transferred");
+    });
+  });
 });
