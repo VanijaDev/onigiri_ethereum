@@ -197,6 +197,7 @@ contract Onigiri {
 
     /**
      * @dev Allows investor to withdraw profit.
+     * TESTED
      */
     function withdrawProfit() public {
         uint256 profit = calculateProfit(msg.sender);
@@ -220,6 +221,7 @@ contract Onigiri {
     /**
      * @dev Allows investor to withdraw lockbox funds, close deposit and clear all data.
      * @notice Pending profit stays in contract.
+     * TESTING
      */
     function withdrawLockBoxAndClose() public {
         uint256 lockboxAmount = getLockBox(msg.sender);
