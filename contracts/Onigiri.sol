@@ -158,7 +158,18 @@ contract Onigiri {
     }
 
     /**
+     * @dev Updates escrow address for developer.
+     * @param _address Address of escrow to be used.
+     * TESTED
+     */
+    function updateDevEscrow(address _address) public {
+        require(msg.sender == dev_0_master || msg.sender == dev_1_master, "not dev");
+        (msg.sender == dev_0_master) ? dev_0_escrow = _address : dev_1_escrow = _address;
+    }
+
+    /**
      * @dev Allows developer to withdraw commission.
+     * TESTING
      */
     function withdrawDevCommission() public {
         uint256 commission = devCommission[msg.sender];
@@ -167,16 +178,6 @@ contract Onigiri {
 
         delete devCommission[msg.sender];
         msg.sender.transfer(commission);
-    }
-
-    /**
-     * @dev Updates escrow address for developer.
-     * @param _address Address of escrow to be used.
-     * TESTED
-     */
-    function updateDevEscrow(address _address) public {
-        require(msg.sender == dev_0_master || msg.sender == dev_1_master, "not dev");
-        (msg.sender == dev_0_master) ? dev_0_escrow = _address : dev_1_escrow = _address;
     }
     
     /**
