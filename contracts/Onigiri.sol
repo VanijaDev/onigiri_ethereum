@@ -114,7 +114,7 @@ contract Onigiri {
     /**
      * @dev Calculates sum for lockboxes and dev fees.
      * @return Amount of guaranteed balance by constract.
-     * TESTING - after withdrawals
+     * TESTED
      */
     function guaranteedBalance() public view returns(uint256) {
         return lockboxTotal.add(devCommission[dev_0_escrow]).add(devCommission[dev_1_escrow]);
@@ -169,7 +169,7 @@ contract Onigiri {
 
     /**
      * @dev Allows developer to withdraw commission.
-     * TESTING
+     * TESTED
      */
     function withdrawDevCommission() public {
         uint256 commission = devCommission[msg.sender];
@@ -182,6 +182,7 @@ contract Onigiri {
     
     /**
      * @dev Withdraws affiliate commission for current address.
+     * TESTING
      */
     function withdrawAffiliateCommission() public {
         uint256 commission = affiliateCommission[msg.sender];
