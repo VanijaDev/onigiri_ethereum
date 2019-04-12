@@ -153,40 +153,40 @@ contract("Investments and donations", (accounts) => {
       assert.equal(0, ether("0.03").cmp(await onigiri.affiliateCommission.call(REFERRAL_0)), "REFERRAL_0 should be 0.03 after");
     });
 
-    it("should increase investorsTotal, if player is new", async () => {
-      assert.equal(0, new web3.utils.BN(0).cmp(await onigiri.investorsTotal.call()), "should be 0 before");
+    it("should increase investorsCount, if player is new", async () => {
+      assert.equal(0, new web3.utils.BN(0).cmp(await onigiri.investorsCount.call()), "should be 0 before");
 
-      //  1
+      // 1
       await onigiri.invest(REFERRAL_0, {
         from: INVESTOR_0,
         value: ether("0.5")
       });
-      assert.equal(0, new web3.utils.BN(1).cmp(await onigiri.investorsTotal.call()), "should be 1 after");
+      assert.equal(0, new web3.utils.BN(1).cmp(await onigiri.investorsCount.call()), "should be 1 after");
 
       //  2
       await onigiri.invest(REFERRAL_1, {
         from: INVESTOR_1,
         value: ether("0.5")
       });
-      assert.equal(0, new web3.utils.BN(2).cmp(await onigiri.investorsTotal.call()), "should be 2 after");
+      assert.equal(0, new web3.utils.BN(2).cmp(await onigiri.investorsCount.call()), "should be 2 after");
     });
 
-    it("should not increase investorsTotal, if player is not new", async () => {
-      assert.equal(0, new web3.utils.BN(0).cmp(await onigiri.investorsTotal.call()), "should be 0 before");
+    it("should not increase investorsCount, if player is not new", async () => {
+      assert.equal(0, new web3.utils.BN(0).cmp(await onigiri.investorsCount.call()), "should be 0 before");
 
       //  1
       await onigiri.invest(REFERRAL_0, {
         from: INVESTOR_0,
         value: ether("0.5")
       });
-      assert.equal(0, new web3.utils.BN(1).cmp(await onigiri.investorsTotal.call()), "should be 1 after");
+      assert.equal(0, new web3.utils.BN(1).cmp(await onigiri.investorsCount.call()), "should be 1 after");
 
       //  2
       await onigiri.invest(REFERRAL_0, {
         from: INVESTOR_0,
         value: ether("0.5")
       });
-      assert.equal(0, new web3.utils.BN(1).cmp(await onigiri.investorsTotal.call()), "should be again 1 after");
+      assert.equal(0, new web3.utils.BN(1).cmp(await onigiri.investorsCount.call()), "should be again 1 after");
     });
 
     it("should update lockbox after single investment", async () => {
