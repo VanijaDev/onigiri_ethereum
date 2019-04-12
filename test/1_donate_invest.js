@@ -28,7 +28,7 @@ contract("Investments and donations", (accounts) => {
     onigiri = await Onigiri.new();
   });
 
-  describe("donations", () => {
+  describe("Donations", () => {
     it("should update donations correctly", async () => {
       assert.equal(0, ether("0").cmp(await onigiri.donatedTotal.call()), "donatedTotal should 0 before");
 
@@ -56,7 +56,7 @@ contract("Investments and donations", (accounts) => {
     });
   });
 
-  describe("donations from games", () => {
+  describe("Donations from games", () => {
     it("should update donations correctly", async () => {
       assert.equal(0, ether("0").cmp(await onigiri.gamesIncomeTotal.call()), "gamesIncomeTotal should 0 before");
 
@@ -82,7 +82,7 @@ contract("Investments and donations", (accounts) => {
     });
   });
 
-  describe("invest", () => {
+  describe("Invest", () => {
     it("should not allow investment less than 0.025 ether", async () => {
       await shouldFail(onigiri.invest(REFERRAL_1, {
         from: INVESTOR_1,
@@ -349,7 +349,7 @@ contract("Investments and donations", (accounts) => {
     });
   });
 
-  describe("reinvest", () => {
+  describe("Reinvest", () => {
     it("should fail if no investment", async () => {
       await shouldFail(onigiri.reinvestProfit({
         from: INVESTOR_0

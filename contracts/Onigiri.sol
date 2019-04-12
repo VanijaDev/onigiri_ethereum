@@ -3,7 +3,6 @@ pragma solidity ^0.5.0;
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
 //  TODO: add events
-//  TODO: secure dev fee
 contract Onigiri {
     using SafeMath for uint256;
 
@@ -18,7 +17,7 @@ contract Onigiri {
     mapping (address => uint256) public affiliateCommission;
     mapping (address => uint256) public devCommission;
 
-    uint256 public investorsTotal;
+    uint256 public investorsCount;
     uint256 public lockboxTotal;
     uint256 public withdrawnProfitTotal;
     uint256 public affiliateCommissionWithdrawnTotal;
@@ -113,8 +112,9 @@ contract Onigiri {
     }
 
     /**
-     * @dev Calculates sum lockboxes and dev fees.
+     * @dev Calculates sum for lockboxes and dev fees.
      * @return Amount of guaranteed balance by constract.
+     * TESTING - after withdrawals
      */
     function guaranteedBalance() public view returns(uint256) {
         return lockboxTotal.add(devCommission[dev_0_escrow]).add(devCommission[dev_1_escrow]);
@@ -140,7 +140,7 @@ contract Onigiri {
         }
 
         if(getLastInvestmentTime(msg.sender) == 0) {
-            investorsTotal = investorsTotal.add(1);
+            investorsCount = investorsCount.add(1);
         }
 
         uint256 lockboxAmount = msg.value.div(100).mul(84);
@@ -185,7 +185,7 @@ contract Onigiri {
     function withdrawAffiliateCommission() public {
         uint256 commission = affiliateCommission[msg.sender];
         require(commission > 0, "no commission");
-        require(address(this).balance.sub(commission) >= lockboxTotal, "not enough funds");
+        require(address(this).balance.sub(commission) >= guaranteedBalance(), "not enough funds");
 
         delete affiliateCommission[msg.sender];
         affiliateCommissionWithdrawnTotal = affiliateCommissionWithdrawnTotal.add(commission);
@@ -199,7 +199,7 @@ contract Onigiri {
     function withdrawProfit() public {
         uint256 profit = calculateProfit(msg.sender);
         require(profit > 0, "no profit");
-        require(address(this).balance.sub(profit) >= lockboxTotal, "not enough funds");
+        require(address(this).balance.sub(profit) >= guaranteedBalance(), "not enough funds");
 
         investors[msg.sender].lastInvestmentTime = now;
         investors[msg.sender].withdrawn = investors[msg.sender].withdrawn.add(profit);
@@ -224,7 +224,7 @@ contract Onigiri {
         require(lockboxAmount > 0, "no investments");
 
         delete investors[msg.sender];
-        investorsTotal = investorsTotal.sub(1);
+        investorsCount = investorsCount.sub(1);
         lockboxTotal = lockboxTotal.sub(lockboxAmount);
 
         msg.sender.transfer(lockboxAmount);
@@ -237,7 +237,7 @@ contract Onigiri {
     function reinvestProfit() public {
         uint256 profit = calculateProfit(msg.sender);
         require(profit > 0, "no profit");
-        require(address(this).balance.sub(profit) >= lockboxTotal, "not enough funds");
+        require(address(this).balance.sub(profit) >= guaranteedBalance(), "not enough funds");
         
         uint256 lockboxFromProfit = profit.div(100).mul(84);
         investors[msg.sender].lockbox = investors[msg.sender].lockbox.add(lockboxFromProfit);

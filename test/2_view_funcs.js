@@ -27,7 +27,7 @@ contract("View functions", (accounts) => {
     onigiri = await Onigiri.new();
   });
 
-  describe("investor info", () => {
+  describe("Investor info", () => {
     it("should get correct getInvested after single investment", async () => {
       await onigiri.invest(REFERRAL_0, {
         from: INVESTOR_0,
@@ -156,7 +156,7 @@ contract("View functions", (accounts) => {
     });
   });
 
-  describe("developers commission", () => {
+  describe("Developers commission", () => {
     it("should update devCommission after after all types of dev income: 1) invest; 2) donate; 3) from game; 4) user withdraw", async () => {
       //  1 - invest == 0.02
       await onigiri.invest(REFERRAL_0, {
@@ -195,7 +195,7 @@ contract("View functions", (accounts) => {
     });
   });
 
-  describe("other view funcs", () => {
+  describe("Contract balance", () => {
     it("should validate getBalance after single investment", async () => {
       assert.equal(0, new web3.utils.BN(0).cmp(await onigiri.getBalance.call()), "contract balance should be 0");
 
@@ -249,7 +249,9 @@ contract("View functions", (accounts) => {
 
       assert.equal(0, ether("3.5").cmp(await onigiri.getBalance.call()), "contract balance should be 2.5 eth");
     });
+  });
 
+  describe("CalculateProfit", () => {
     it("should get correct calculateProfit for 1 hour", async () => {
       await onigiri.invest(REFERRAL_0, {
         from: INVESTOR_0,
@@ -288,6 +290,88 @@ contract("View functions", (accounts) => {
 
       await time.increase(time.duration.years(1));
       assert.equal(0, ether("5.88672").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 year profit should be 5.88672 eth");
+    });
+  });
+
+  describe("GuaranteedBalance", () => {
+    it("should increase after single investment", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("2")
+      });
+
+      let guaranteedBal = await onigiri.guaranteedBalance.call();
+      let guaranteedBalExpected = ether("1.68").add(ether("0.08"));
+      assert.equal(0, guaranteedBal.cmp(guaranteedBalExpected), "wrong guaranteed balance after single investment");
+    });
+
+    it("should increase after multiple investments", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("2")
+      });
+
+      await onigiri.invest(REFERRAL_1, {
+        from: INVESTOR_1,
+        value: ether("2")
+      });
+
+      let guaranteedBal = await onigiri.guaranteedBalance.call();
+      let guaranteedBalExpected = ether("1.68").add(ether("1.68")).add(ether("0.16"));
+      assert.equal(0, guaranteedBal.cmp(guaranteedBalExpected), "wrong guaranteed balance after multiple investments");
+    });
+
+    it("should increase after multiple donations", async () => {
+      await web3.eth.sendTransaction({
+        from: OTHER_ADDR,
+        to: onigiri.address,
+        value: ether("1")
+      });
+
+      await web3.eth.sendTransaction({
+        from: OTHER_ADDR,
+        to: onigiri.address,
+        value: ether("2")
+      });
+
+      let guaranteedBal = await onigiri.guaranteedBalance.call();
+      let guaranteedBalExpected = ether("0.06");
+      assert.equal(0, guaranteedBal.cmp(guaranteedBalExpected), "wrong guaranteed balance after multiple donations");
+    });
+
+    it("should increase after multiple from games", async () => {
+      await onigiri.fromGame({
+        from: OTHER_ADDR,
+        value: ether("1")
+      });
+
+      await onigiri.fromGame({
+        from: OTHER_ADDR,
+        value: ether("2")
+      });
+
+      let guaranteedBal = await onigiri.guaranteedBalance.call();
+      let guaranteedBalExpected = ether("0.12");
+      assert.equal(0, guaranteedBal.cmp(guaranteedBalExpected), "wrong guaranteed balance after multiple from games");
+    });
+
+    it("should increase after single reinvest", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+
+      await time.increase(time.duration.weeks(2));
+      let profit = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
+      let profit_lockbox = profit.div(new web3.utils.BN(100)).mul(new web3.utils.BN(84));
+
+      await onigiri.reinvestProfit({
+        from: INVESTOR_0
+      });
+
+      let guaranteedBal = await onigiri.guaranteedBalance.call();
+      let guaranteedBalExpected = ether("0.84").add(ether("0.04")).add(profit_lockbox);
+      assert.equal(0, guaranteedBal.cmp(guaranteedBalExpected), "wrong guaranteed balance after single reinvest");
     });
   });
 
