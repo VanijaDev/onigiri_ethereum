@@ -182,7 +182,7 @@ contract Onigiri {
     
     /**
      * @dev Withdraws affiliate commission for current address.
-     * TESTING
+     * TESTED
      */
     function withdrawAffiliateCommission() public {
         uint256 commission = affiliateCommission[msg.sender];
