@@ -275,6 +275,7 @@ contract Onigiri {
      */
     function calculateProfit(address _investor) public view returns(uint256){
         uint256 hourDifference = now.sub(investors[_investor].lastInvestmentTime).div(3600);
+        // uint256 hourDifference = now.sub(investors[_investor].lastInvestmentTime).div(60);   //  TODO: use for testing
         uint256 rate = percentRate(_investor);
         uint256 calculatedPercent = hourDifference.mul(rate);
         return investors[_investor].lockbox.div(100000).mul(calculatedPercent);
