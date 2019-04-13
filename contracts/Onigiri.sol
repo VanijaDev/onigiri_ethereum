@@ -2,7 +2,6 @@ pragma solidity ^0.5.0;
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
 
-//  TODO: add events
 contract Onigiri {
     using SafeMath for uint256;
 
@@ -31,6 +30,12 @@ contract Onigiri {
     address private dev_1_escrow = 0xA8265C1f1e158519C96A182fdAf14913D21e31E0;           //  TODO: Ivan's escrow, empty in PROD
 
     uint256 public constant minInvest = 0.025 ether;
+
+    event Invested(address investor, uint256 amount);
+    event Renvested(address investor, uint256 amount);
+    event WithdrawnAffiliateCommission(address affiliate, uint256 amount);
+    event WithdrawnProfit(address investor, uint256 amount);
+    event WithdrawnLockbox(address investor, uint256 amount);
 
     /**
      * PUBLIC
@@ -155,6 +160,8 @@ contract Onigiri {
         uint256 devFee = msg.value.div(100).mul(2);
         devCommission[dev_0_escrow] = devCommission[dev_0_escrow].add(devFee);
         devCommission[dev_1_escrow] = devCommission[dev_1_escrow].add(devFee);
+
+        emit Invested(msg.sender, msg.value);
     }
 
     /**
@@ -193,6 +200,8 @@ contract Onigiri {
         affiliateCommissionWithdrawnTotal = affiliateCommissionWithdrawnTotal.add(commission);
 
         msg.sender.transfer(commission);
+
+        emit WithdrawnAffiliateCommission(msg.sender, commission);
     }
 
     /**
@@ -216,6 +225,8 @@ contract Onigiri {
         
         //  3% - stay in contract
         msg.sender.transfer(profit.div(100).mul(95));
+
+        emit WithdrawnProfit(msg.sender, profit);
     }
 
     /**
@@ -232,6 +243,8 @@ contract Onigiri {
         lockboxTotal = lockboxTotal.sub(lockboxAmount);
 
         msg.sender.transfer(lockboxAmount);
+
+        emit WithdrawnLockbox(msg.sender, lockboxAmount);
     }
     
     /**
@@ -249,6 +262,8 @@ contract Onigiri {
         investors[msg.sender].invested = investors[msg.sender].invested.add(profit);
 
         lockboxTotal = lockboxTotal.add(lockboxFromProfit);
+
+        emit Renvested(msg.sender, profit);
     }
 
     /**
