@@ -13,17 +13,17 @@ contract Onigiri {
         uint256 lastInvestmentTime;
     }
     
-    mapping (address => InvestorInfo) public investors;         //  TODO
-    mapping (address => uint256) public affiliateCommission;    //  TODO
-    mapping (address => uint256) public devCommission;          //  TODO
+    mapping (address => InvestorInfo) public investors;
+    mapping (address => uint256) public affiliateCommission;
+    mapping (address => uint256) public devCommission;
 
-    uint256 public investorsCount;                              //  TODO
-    uint256 public lockboxTotal;                                //  TODO
-    uint256 public withdrawnProfitTotal;                        //  TODO
-    uint256 public affiliateCommissionWithdrawnTotal;           //  TODO
+    uint256 public investorsCount;
+    uint256 public lockboxTotal;
+    uint256 public withdrawnProfitTotal;
+    uint256 public affiliateCommissionWithdrawnTotal;
     
-    uint256 public donatedTotal;                                //  TODO
-    uint256 public gamesIncomeTotal;                            //  TODO
+    uint256 public donatedTotal;
+    uint256 public gamesIncomeTotal;
     
     address private constant dev_0_master = 0xc9d76DB051245846254d3aF4949f1094bEEeE3CE;  //  TODO: Ronald's master
     address private constant dev_1_master = 0xb37277d6558D41fAdd2a291AB0bD398D4564Be40;  //  TODO: Ivan's master

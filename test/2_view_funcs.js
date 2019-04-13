@@ -374,4 +374,110 @@ contract("View functions", (accounts) => {
       assert.equal(0, guaranteedBal.cmp(guaranteedBalExpected), "wrong guaranteed balance after single reinvest");
     });
   });
+
+  describe("investors variable", () => {
+    it("should get correct data", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+      let investmentTime = await time.latest();
+      await time.increase(time.duration.hours(1));
+
+      let investorData = await onigiri.investors.call(INVESTOR_0);
+      assert.equal(0, ether("1").cmp(investorData.invested), "wrong invested");
+      assert.equal(0, ether("0.84").cmp(investorData.lockbox), "wrong lockbox");
+      assert.equal(0, ether("0").cmp(investorData.withdrawn), "wrong withdrawn");
+      assert.equal(0, investmentTime.cmp(investorData.lastInvestmentTime), "wrong lastInvestmentTime");
+    });
+
+    it("should get correct withdrawn data after withdrawal", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+      await time.increase(time.duration.hours(1));
+
+      await onigiri.withdrawProfit({
+        from: INVESTOR_0
+      });
+
+      let investorData = await onigiri.investors.call(INVESTOR_0);
+      assert.equal(-1, ether("0").cmp(investorData.withdrawn), "wrong withdrawn after withdrawal");
+    });
+  });
+
+  describe("affiliateCommission variable", () => {
+    it("should update affiliateCommission correctly after investment", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+
+      assert.equal(0, ether("0.01").cmp(await onigiri.affiliateCommission.call(REFERRAL_0)), "wrong affiliateCommission");
+    });
+
+    it("should update affiliateCommission correctly after withdraval", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+
+      await onigiri.withdrawAffiliateCommission({
+        from: REFERRAL_0
+      });
+
+      assert.equal(0, ether("0").cmp(await onigiri.affiliateCommission.call(REFERRAL_0)), "wrong affiliateCommission, should be 0");
+    });
+  });
+
+  describe("devCommission variable", () => {
+    it("should update devCommission correctly after single investment", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("2")
+      });
+
+      assert.equal(0, ether("0.04").cmp(await onigiri.devCommission.call(DEV_0_ESCROW)), "wrong DEV_0_ESCROW");
+    });
+
+    it("should update devCommission correctly after multiple investments", async () => {
+      //  1
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("2")
+      });
+
+      assert.equal(0, ether("0.04").cmp(await onigiri.devCommission.call(DEV_0_ESCROW)), "wrong DEV_0_ESCROW 1");
+
+      //  2
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+
+      assert.equal(0, ether("0.06").cmp(await onigiri.devCommission.call(DEV_0_ESCROW)), "wrong DEV_0_ESCROW 2");
+
+      //  3
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("0.5")
+      });
+
+      assert.equal(0, ether("0.07").cmp(await onigiri.devCommission.call(DEV_0_ESCROW)), "wrong DEV_0_ESCROW 3");
+    });
+
+    it("should update devCommission correctly after withdraval", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+
+      await onigiri.withdrawDevCommission({
+        from: DEV_0_ESCROW
+      });
+
+      assert.equal(0, ether("0").cmp(await onigiri.devCommission.call(DEV_0_ESCROW)), "wrong devCommission, should be 0");
+    });
+  });
 });
