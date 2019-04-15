@@ -291,21 +291,36 @@ contract Onigiri {
      * @return rate for lockbox balance.
      */
     function percentRate(address _investor) private view returns(uint) {
-        uint256 stepLow = .15 ether;
-        uint256 stepMiddle = 150 ether;
-        uint256 stepHigh = 1000 ether;
+        /**
+            25 = .6% || .025 ~ .99
+            40 = .96% || 1 ~ 100 
+            50 = 1.2% || 101 ~ 250 
+            75 = 1.8% || 251 ~ 500
+            100 = 2.4% 501 ~ 
+         */
 
-        uint256 dailyLowPercent = 40;       // 0.96%
-        uint256 dailyMiddlePercent = 75;    // 1.8%
-        uint256 dailyHighPercent = 100;     // 2.4%
-        
+        uint256 step_1 = .99 ether;
+        uint256 step_2 = 100 ether;
+        uint256 step_3 = 250 ether;
+        uint256 step_4 = 500 ether;
+
+        uint 256 dailyPercent_0 = 25;   //  .6%
+        uint 256 dailyPercent_1 = 40;   //  .96%
+        uint 256 dailyPercent_2 = 50;   //  .1.2%
+        uint 256 dailyPercent_3 = 75;   //  .1.8%
+        uint 256 dailyPercent_4 = 2.4;  //  .2.4%
+
         uint balance = investors[_investor].lockbox;
-        if (balance >= stepHigh) {
-            return dailyHighPercent;
-        } else if (balance >= stepMiddle && balance < stepHigh) {
-            return dailyMiddlePercent;
-        } else if (balance >= stepLow && balance < stepMiddle) {
-            return dailyLowPercent;
+        if (balance >= step_4) {
+            return dailyPercent_4;
+        } else if (balance >= step_3 && balance < step_4) {
+            return dailyPercent_3;
+        } else if (balance >= dailyPercent_2 && balance < step_3) {
+            return dailyPercent_2;
+        } else if (balance >= step_1 && balance < step_2) {
+            return dailyPercent_1;
         }
+
+        return dailyPercent_0;
     }
 }
