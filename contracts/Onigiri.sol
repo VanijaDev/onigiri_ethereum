@@ -315,7 +315,7 @@ contract Onigiri {
             return dailyPercent_4;
         } else if (balance >= step_3 && balance < step_4) {
             return dailyPercent_3;
-        } else if (balance >= dailyPercent_2 && balance < step_3) {
+        } else if (balance >= step_3 && balance < step_3) {
             return dailyPercent_2;
         } else if (balance >= step_1 && balance < step_2) {
             return dailyPercent_1;
