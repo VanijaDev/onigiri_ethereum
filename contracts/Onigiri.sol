@@ -299,7 +299,6 @@ contract Onigiri {
             100 ~ 250  - 1.44% 
             250 ~      - 1.8% 
          */
-
         uint256 step_1 = .99 ether;
         uint256 step_2 = 50 ether;
         uint256 step_3 = 100 ether;
