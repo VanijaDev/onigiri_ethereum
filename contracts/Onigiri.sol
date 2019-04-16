@@ -293,8 +293,8 @@ contract Onigiri {
      */
     function percentRate(uint256 _balance) public pure returns(uint256) {
         /**
-            ~ .99 -    - .6%
-            1 ~ 50     - .96% 
+            ~ .99 -    - 0.6%
+            1 ~ 50     - 0.96% 
             51 ~ 100   - 1.2% 
             100 ~ 250  - 1.44% 
             250 ~      - 1.8% 
@@ -305,8 +305,8 @@ contract Onigiri {
         uint256 step_3 = 100 ether;
         uint256 step_4 = 250 ether;
 
-        uint256 dailyPercent_0 = 25;   //  .6%
-        uint256 dailyPercent_1 = 40;   //  .96%
+        uint256 dailyPercent_0 = 25;   //  0.6%
+        uint256 dailyPercent_1 = 40;   //  0.96%
         uint256 dailyPercent_2 = 50;   //  1.2%
         uint256 dailyPercent_3 = 60;   //  1.44%
         uint256 dailyPercent_4 = 75;   //  1.8%
