@@ -251,7 +251,59 @@ contract("View functions", (accounts) => {
     });
   });
 
-  describe("CalculateProfit", () => {
+  describe("CalculateProfit - 0.5 ETH", () => {
+    it("should get correct calculateProfit for 1 hour", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("0.5")
+      });
+
+      await time.increase(time.duration.hours(1));
+      assert.equal(0, ether("0.000105").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 hour profit should be 0.000105 eth");
+    });
+
+    it("should get correct calculateProfit for 1 day", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("0.5")
+      });
+
+      await time.increase(time.duration.days(1));
+      assert.equal(0, ether("0.00252").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 day profit should be 0.00252 eth");
+    });
+
+    it("should get correct calculateProfit for 1 week", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("0.5")
+      });
+
+      await time.increase(time.duration.weeks(1));
+      assert.equal(0, ether("0.01764").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 week profit should be 0.01764 eth");
+    });
+
+    it.only("should get correct calculateProfit for 1 year", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("0.5")
+      });
+
+      await time.increase(time.duration.years(1));
+      // console.log((await onigiri.calculateProfit.call(INVESTOR_0)).toString());
+      assert.equal(0, ether("0.9198").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 year profit should be 0.9198 eth");
+    });
+  });
+
+  describe("CalculateProfit - 2 ETH", () => {
+    /**
+            25 = .6% || .025 ~ .99
+            40 = .96% || 1 ~ 100 
+            50 = 1.2% || 101 ~ 250 
+            75 = 1.8% || 251 ~ 500
+            100 = 2.4% 501 ~ 
+
+            return investors[_investor].lockbox.div(100000).mul(calculatedPercent);
+         */
     it("should get correct calculateProfit for 1 hour", async () => {
       await onigiri.invest(REFERRAL_0, {
         from: INVESTOR_0,
@@ -260,6 +312,57 @@ contract("View functions", (accounts) => {
 
       await time.increase(time.duration.hours(1));
       assert.equal(0, ether("0.000672").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 hour profit should be 0.000672 eth");
+    });
+
+    it("should get correct calculateProfit for 1 day", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("2")
+      });
+
+      await time.increase(time.duration.days(1));
+      assert.equal(0, ether("0.016128").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 day profit should be 0.016128 eth");
+    });
+
+    it("should get correct calculateProfit for 1 week", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("2")
+      });
+
+      await time.increase(time.duration.weeks(1));
+      assert.equal(0, ether("0.112896").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 week profit should be 0.112896 eth");
+    });
+
+    it("should get correct calculateProfit for 1 year", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("2")
+      });
+
+      await time.increase(time.duration.years(1));
+      assert.equal(0, ether("5.88672").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 year profit should be 5.88672 eth");
+    });
+  });
+
+  describe("CalculateProfit - 0.5 ETH", () => {
+    /**
+            25 = .6% || .025 ~ .99
+            40 = .96% || 1 ~ 100 
+            50 = 1.2% || 101 ~ 250 
+            75 = 1.8% || 251 ~ 500
+            100 = 2.4% 501 ~ 
+
+            return investors[_investor].lockbox.div(100000).mul(calculatedPercent);
+         */
+    it("should get correct calculateProfit for 1 hour", async () => {
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("2")
+      });
+
+      await time.increase(time.duration.hours(1));
+      assert.equal(0, ether("0.00042").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 hour profit should be 0.00042 eth");
     });
 
     it("should get correct calculateProfit for 1 day", async () => {
