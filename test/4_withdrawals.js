@@ -165,13 +165,14 @@ contract("View functions", (accounts) => {
       });
 
       // console.log("guaranteedBalance: ", (await onigiri.guaranteedBalance.call()).toString());
-      await time.increase(time.duration.hours(355));
+      await time.increase(time.duration.hours(570));
       let profit = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0)); //  0.11928 ETH + 0.84 ETH lockbox + 0.04 ETH dev commission = 0.99928 ETH
       // console.log("profit: ", profit.toString());
       await onigiri.withdrawProfit({
         from: INVESTOR_0
       });
       // console.log("getBalance: ", new web3.utils.BN(await web3.eth.getBalance(onigiri.address)).toString());
+      // console.log("affiliateCommission: ", new web3.utils.BN(await await onigiri.affiliateCommission.call(REFERRAL_0)).toString());
 
       //  withdraw
       await shouldFail(onigiri.withdrawAffiliateCommission({
@@ -264,9 +265,10 @@ contract("View functions", (accounts) => {
         from: INVESTOR_0,
         value: ether("1")
       });
-      await time.increase(time.duration.days(15));
+      await time.increase(time.duration.days(25));
       let profit = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
       // console.log("profit: ", profit.toString());
+      // console.log((await onigiri.guaranteedBalance.call()).toString());
 
       await shouldFail(onigiri.withdrawProfit({
         from: INVESTOR_0

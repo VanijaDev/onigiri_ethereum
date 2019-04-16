@@ -376,7 +376,7 @@ contract("Investments and donations", (accounts) => {
         value: ether("1")
       });
 
-      await time.increase(time.duration.weeks(3));
+      await time.increase(time.duration.weeks(30));
       await shouldFail(onigiri.reinvestProfit({
         from: INVESTOR_0
       }), "not enough funds");

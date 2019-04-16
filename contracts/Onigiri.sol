@@ -289,8 +289,9 @@ contract Onigiri {
      * @dev Calculates rate for lockbox balance for msg.sender.
      * @param _balance Balance to calculate percentage.
      * @return rate for lockbox balance.
+     * TESTED
      */
-    function percentRate(uint256 _balance) public pure returns(uint) {
+    function percentRate(uint256 _balance) public pure returns(uint256) {
         /**
             25 = .6% || .025 ~ .99
             40 = .96% || 1 ~ 100 
