@@ -382,10 +382,15 @@ contract("Investments and donations", (accounts) => {
       }), "not enough funds");
     });
 
-    it("should update with correct lockbox", async () => {
+    it("should update with correct lockbox for 1 ETH investment", async () => {
       await onigiri.invest(REFERRAL_0, {
         from: INVESTOR_0,
         value: ether("1")
+      });
+
+      await onigiri.invest(REFERRAL_1, {
+        from: INVESTOR_1,
+        value: ether("2")
       });
 
       await time.increase(time.duration.weeks(2));
@@ -407,6 +412,11 @@ contract("Investments and donations", (accounts) => {
         value: ether("1")
       });
 
+      await onigiri.invest(REFERRAL_1, {
+        from: INVESTOR_1,
+        value: ether("2")
+      });
+
       await time.increase(time.duration.weeks(2));
       await onigiri.reinvestProfit({
         from: INVESTOR_0
@@ -421,6 +431,11 @@ contract("Investments and donations", (accounts) => {
       await onigiri.invest(REFERRAL_0, {
         from: INVESTOR_0,
         value: ether("1")
+      });
+
+      await onigiri.invest(REFERRAL_1, {
+        from: INVESTOR_1,
+        value: ether("2")
       });
 
       await time.increase(time.duration.weeks(2));
