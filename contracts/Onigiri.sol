@@ -304,11 +304,11 @@ contract Onigiri {
         uint256 step_3 = 250 ether;
         uint256 step_4 = 500 ether;
 
-        uint 256 dailyPercent_0 = 25;   //  .6%
-        uint 256 dailyPercent_1 = 40;   //  .96%
-        uint 256 dailyPercent_2 = 50;   //  .1.2%
-        uint 256 dailyPercent_3 = 75;   //  .1.8%
-        uint 256 dailyPercent_4 = 2.4;  //  .2.4%
+        uint256 dailyPercent_0 = 25;   //  .6%
+        uint256 dailyPercent_1 = 40;   //  .96%
+        uint256 dailyPercent_2 = 50;   //  .1.2%
+        uint256 dailyPercent_3 = 75;   //  .1.8%
+        uint256 dailyPercent_4 = 100;  //  .2.4%
 
         uint balance = investors[_investor].lockbox;
         if (balance >= step_4) {
