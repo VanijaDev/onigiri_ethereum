@@ -276,7 +276,7 @@ contract Onigiri {
     function calculateProfit(address _investor) public view returns(uint256){
         uint256 hourDifference = now.sub(investors[_investor].lastInvestmentTime).div(3600);
         // uint256 hourDifference = now.sub(investors[_investor].lastInvestmentTime).div(60);   //  TODO: use for testing
-        uint256 rate = percentRate(_investor);
+        uint256 rate = percentRate(investors[_investor].lockbox);
         uint256 calculatedPercent = hourDifference.mul(rate);
         return investors[_investor].lockbox.div(100000).mul(calculatedPercent);
     }
@@ -287,10 +287,10 @@ contract Onigiri {
 
     /**
      * @dev Calculates rate for lockbox balance for msg.sender.
-     * @param _investor Address of investor.
+     * @param _balance Balance to calculate percentage.
      * @return rate for lockbox balance.
      */
-    function percentRate(address _investor) private view returns(uint) {
+    function percentRate(uint256 _balance) public pure returns(uint) {
         /**
             25 = .6% || .025 ~ .99
             40 = .96% || 1 ~ 100 
@@ -310,14 +310,13 @@ contract Onigiri {
         uint256 dailyPercent_3 = 75;   //  .1.8%
         uint256 dailyPercent_4 = 100;  //  .2.4%
 
-        uint balance = investors[_investor].lockbox;
-        if (balance >= step_4) {
+        if (_balance >= step_4) {
             return dailyPercent_4;
-        } else if (balance >= step_3 && balance < step_4) {
+        } else if (_balance >= step_3 && _balance < step_4) {
             return dailyPercent_3;
-        } else if (balance >= step_3 && balance < step_3) {
+        } else if (_balance >= step_2 && _balance < step_3) {
             return dailyPercent_2;
-        } else if (balance >= step_1 && balance < step_2) {
+        } else if (_balance >= step_1 && _balance < step_2) {
             return dailyPercent_1;
         }
 
