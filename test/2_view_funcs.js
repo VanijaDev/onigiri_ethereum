@@ -282,7 +282,7 @@ contract("View functions", (accounts) => {
       assert.equal(0, ether("0.01764").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 week profit should be 0.01764 eth");
     });
 
-    it.only("should get correct calculateProfit for 1 year", async () => {
+    it("should get correct calculateProfit for 1 year", async () => {
       await onigiri.invest(REFERRAL_0, {
         from: INVESTOR_0,
         value: ether("0.5")
