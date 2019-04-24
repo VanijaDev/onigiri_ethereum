@@ -1,5 +1,5 @@
-let Bank = {
-    address: "0x485e31732b015b97b829301e390FC6d18A3a7b58",
+let OnigiriData = {
+    address: "0x5ffd2e6Bc7893A3940a3221F984A001f59f04E8B",
     abi: [{
             "constant": true,
             "inputs": [],
@@ -419,5 +419,13 @@ let Bank = {
             "stateMutability": "pure",
             "type": "function"
         }
-    ]
+    ],
+
+    build: function () {
+        return web3.eth.contract(this.abi).at(this.address);
+    }
+}
+
+export {
+    OnigiriData
 };
