@@ -96,7 +96,7 @@
           <br>
           <input type="text" style="width:70%;" placeholder="Amount of ETH..." id="investAmount"></input>
           <br>
-          <button class="outline-button green" onclick="investETH(sent)">Deposit</button>
+          <button class="outline-button green" onclick="App.investETH()">Deposit</button>
           <br>
           <h6>84% to LockBox, 12% to Contract (if referral is used 11%), 4% general fees.</h6>
 
@@ -118,7 +118,7 @@
         <div class="col-sm-4">
           <h4>LockBox</h4>
           <font size="5"><span id="ActiveLockBox">0 <B>ETH</B></span></font> <br>
-          <button class="outline-button red" onclick="withdrawLockbox">Deactivate LockBox</button><BR>
+          <button class="outline-button red" onclick="App.withdrawLockbox()">Deactivate LockBox</button><BR>
           <h6>NOTE: By withdrawing LockBox funds you Exit Onigiri and future daily rewards Stop. You can withdraw 100%
             of the LockBox with no FEES.</h6>
         </div>
@@ -128,13 +128,13 @@
           <!-- <h4>Your Dividends</h4> -->
           <font size="5"><span id="activeProfit">0 <B>ETH</B></span></font>
           <br>
-          <button class="outline-button2 blue" onclick="withdrawProfit(sent)">WITHDRAW</button>
-          <button class="outline-button2 purple" onclick="reinvestProfit(sent)">Compound</button>
+          <button class="outline-button2 blue" onclick="App.withdrawProfit()">WITHDRAW</button>
+          <button class="outline-button2 purple" onclick="App.reinvestProfit()">Compound</button>
           <br>
           <h6>Withdraw Anytime 3% stays in contract, 2% general fees. On Compound, 84% goes to the LockBox 16% to Main
             Contract. </h6>
           <p>earnings withdrawn total</p>
-          <font size="4"><span id="userwithdrawn">0 <B>ETH</B></span></font>
+          <font size="4"><span id="userwithdrawnTotal">0 <B>ETH</B></span></font>
         </div>
 
         <div class="col-sm-4">
@@ -148,7 +148,7 @@
           <font size="5"><span id="activeCommision">0 <B>ETH</B></span></font>
           <br>
           Affiliate Bonus may take some time to update <br><br>
-          <button class="outline-button2 blue" onclick="withdrawAffiliateCommision(sent)">Take Out</button>
+          <button class="outline-button2 blue" onclick="withdrawAffiliateCommision()">Take Out</button>
         </div>
 
 
