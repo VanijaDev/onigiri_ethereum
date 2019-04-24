@@ -1,0 +1,24 @@
+{
+  "name": "web",
+  "version": "1.0.0",
+  "description": "Integration part on Blockchain implementation",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack",
+    "dev": "webpack-dev-server"
+  },
+  "dependencies": {
+    "web3": "^1.0.0-beta.52",
+    "truffle-contract": "^4.0.12"
+  },
+  "devDependencies": {
+    "copy-webpack-plugin": "^5.0.2",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.1",
+    "webpack-dev-server": "^3.3.1",
+    "big-number": "^2.0.0"
+  },
+  "author": "Ivan Solomichev",
+  "license": "ISC"
+}
