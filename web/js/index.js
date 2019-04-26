@@ -22,6 +22,7 @@ const App = {
 
     setup: async () => {
         App.currentAddress = await App.getCurrentAddress();
+        document.getElementById("currentAddress").innerText = App.currentAddress;
 
         App.fetchAffiliateFromURL();
         App.createContract();
