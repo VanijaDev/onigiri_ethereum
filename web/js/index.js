@@ -2,10 +2,18 @@ import {
     OnigiriData
 } from "../blockchain/contract";
 
+//  TODO: remove console.logs
 const App = {
     onigiriBankContract: null,
     rewardsAvailable: null,
     profitWithdrawalsTotal: null,
+    lockBoxHolders: null,
+    lockBoxAmountTotal: null,
+    contractBalance: null,
+    affiliateCommissionWithdrawnTotal: null,
+    gamesIncomeTotal: null,
+    donatedTotal: null,
+
     currentAddress: null,
     currentAddressLockBox: null,
     currentAddressActiveProfit: null,
@@ -96,12 +104,21 @@ const App = {
 
     //  Update UI
     updateUI: async () => {
+        //  Dashboard
         await App.updateActiveProfit();
         await App.updateActiveCommission();
         await App.updateLockBox();
         await App.updatePercentRate(web3.toWei(App.currentAddressLockBox));
         await App.updateRewardsAvailable();
         await App.updateProfitWithdrawalsTotal();
+
+        //  Stats
+        await App.updateLockBoxHolders();
+        await App.updateLockBoxAmountTotal();
+        await App.updateContractBalance();
+        await App.updateAffiliateCommissionWithdrawnTotal();
+        await App.updateGamesIncomeTotal();
+        await App.updateDonatedTotalTotal();
     },
 
     updateLockBox: async () => {
@@ -137,6 +154,37 @@ const App = {
     updateProfitWithdrawalsTotal: async () => {
         App.profitWithdrawalsTotal = web3.fromWei(await App.getProfitWithdrawalsTotalPromise(), 'ether').toString();
         document.getElementById("profitWithdrawalsTotal").innerText = App.profitWithdrawalsTotal;
+        document.getElementById("withdrawntotal").innerText = App.profitWithdrawalsTotal;
+    },
+
+    updateLockBoxHolders: async () => {
+        App.lockBoxHolders = parseInt(await App.getLockBoxHoldersPromise());
+        document.getElementById("members").innerText = App.lockBoxHolders;
+    },
+
+    updateLockBoxAmountTotal: async () => {
+        App.lockBoxAmountTotal = web3.fromWei(await App.getUpdateLockBoxAmountTotalPromise(), 'ether').toFixed(4).toString();
+        document.getElementById("lockBoxAmountTotal").innerText = App.lockBoxAmountTotal;
+    },
+
+    updateContractBalance: async () => {
+        App.contractBalance = web3.fromWei(await App.getContractBalancePromise(), 'ether').toFixed(4).toString();
+        document.getElementById("contractBalance").innerText = App.contractBalance;
+    },
+
+    updateAffiliateCommissionWithdrawnTotal: async () => {
+        App.affiliateCommissionWithdrawnTotal = web3.fromWei(await App.getAffiliateCommissionWithdrawnTotalPromise(), 'ether').toFixed(4).toString();
+        document.getElementById("affiliateCommissionWithdrawnTotal").innerText = App.affiliateCommissionWithdrawnTotal;
+    },
+
+    updateGamesIncomeTotal: async () => {
+        App.gamesIncomeTotal = web3.fromWei(await App.getGamesIncomeTotalPromise(), 'ether').toFixed(4).toString();
+        document.getElementById("gamesIncomeTotal").innerText = App.gamesIncomeTotal;
+    },
+
+    updateDonatedTotalTotal: async () => {
+        App.donatedTotal = web3.fromWei(await App.getDonatedTotalPromise(), 'ether').toFixed(4).toString();
+        document.getElementById("donatedTotal").innerText = App.donatedTotal;
     },
 
     //  READ
@@ -271,6 +319,80 @@ const App = {
         });
     },
 
+    getLockBoxHoldersPromise: async () => {
+        console.log("getLockBoxHoldersPromise start... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.investorsCount((err, res) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(res)
+                }
+                console.log("getLockBoxHoldersPromise finish... ");
+            });
+        });
+    },
+
+    getUpdateLockBoxAmountTotalPromise: async () => {
+        console.log("getUpdateLockBoxAmountTotalPromise start... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.lockboxTotal((err, res) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(res)
+                }
+                console.log("getUpdateLockBoxAmountTotalPromise finish... ");
+            });
+        });
+    },
+
+    getAffiliateCommissionWithdrawnTotalPromise: async () => {
+        console.log("getAffiliateCommissionWithdrawnTotalPromise start... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.affiliateCommissionWithdrawnTotal((err, res) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(res)
+                }
+                console.log("getAffiliateCommissionWithdrawnTotalPromise finish... ");
+            });
+        });
+    },
+
+    getGamesIncomeTotalPromise: async () => {
+        console.log("getGamesIncomeTotalPromise start... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.gamesIncomeTotal((err, res) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(res)
+                }
+                console.log("getGamesIncomeTotalPromise finish... ");
+            });
+        });
+    },
+
+    getDonatedTotalPromise: async () => {
+        console.log("getDonatedTotalPromise start... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.donatedTotal((err, res) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(res)
+                }
+                console.log("getDonatedTotalPromise finish... ");
+            });
+        });
+    },
 
     getPayoutPersent: async () => {
         console.log("getPayoutPersent start... ");
