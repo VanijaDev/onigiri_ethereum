@@ -23,9 +23,21 @@ const App = {
     setup: async () => {
         App.currentAddress = await App.getCurrentAddress();
 
+        App.fetchAffiliateFromURL();
         App.createContract();
         App.setupEventListeners();
         App.updateUI();
+    },
+
+    fetchAffiliateFromURL: () => {
+        //  TODO: Ronald fetch ref
+        let urlParams = new URLSearchParams(window.location.href);
+        let affiliate = urlParams.get('ref');
+        console.log("affiliate: ", affiliate);
+
+        if (!isNaN(affiliate)) {
+            document.getElementById("affiliateAddress").innerText = affiliate;
+        }
     },
 
     createContract: () => {
