@@ -1,7 +1,7 @@
 pragma solidity ^0.5.0;
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
-// import "https://github.com/OpenZeppelin/openzeppelin-solidity/contracts/math/SafeMath.sol";  //  use in remix
+// import "https://github.com/OpenZeppelin/openzeppelin-solidity/contracts/math/SafeMath.sol";  // TODO:  use in remix
 
 contract Onigiri {
     using SafeMath for uint256;
