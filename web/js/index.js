@@ -4,21 +4,27 @@ import {
 
 const App = {
     onigiriBankContract: null,
+    rewardsAvailable: null,
+    profitWithdrawalsTotal: null,
     currentAddress: null,
     currentAddressLockBox: null,
+    currentAddressActiveProfit: null,
+    currentAddressActivePersent: null,
+    currentAddressActiveCommisiion: null,
 
-    start: async () => {
+    setup: async () => {
+        App.currentAddress = await App.getCurrentAddress();
+
         App.createContract();
         App.setupEventListeners();
-
-        App.currentAddress = await App.getCurrentAddress();
+        App.updateUI();
     },
 
     createContract: () => {
         console.warn("TODO: use deployed contract");
         App.onigiriBankContract = OnigiriData.build();
 
-        console.log(App.onigiriBankContract);
+        // console.log(App.onigiriBankContract);
         console.log("OnigiriBank contract was just created.");
     },
 
@@ -26,7 +32,7 @@ const App = {
         return new Promise(resolve => {
             web3.eth.getAccounts(function (err, res) {
                 if (err) {
-                    console.error("getCurrentAddress: ", err);
+                    // console.error("getCurrentAddress: ", err);
                 } else {
                     resolve(res[0]);
                 }
@@ -43,36 +49,156 @@ const App = {
             if (err) {
                 console.error(err);
             } else {
-                console.log("Transfer event caught with res: ", res);
-                document.getElementById("ActiveLockBox").innerText = res;
+                App.updateLockBox();
             }
         });
+
+        App.onigiriBankContract.Renvested({
+            from: App.currentAddress
+        }, (err, res) => {
+            if (err) {
+                console.error(err);
+            } else {
+                App.updateLockBox();
+            }
+        });
+
+        App.onigiriBankContract.WithdrawnLockbox({
+            from: App.currentAddress
+        }, (err, res) => {
+            if (err) {
+                console.error(err);
+            } else {
+                App.updateUI();
+            }
+        });
+
+        App.onigiriBankContract.WithdrawnProfit({
+            from: App.currentAddress
+        }, (err, res) => {
+            if (err) {
+                console.error(err);
+            } else {
+                App.updateUI();
+            }
+        });
+
+        App.onigiriBankContract.WithdrawnAffiliateCommission({
+            from: App.currentAddress
+        }, (err, res) => {
+            if (err) {
+                console.error(err);
+            } else {
+                App.updateUI();
+            }
+        });
+    },
+
+    //  Update UI
+    updateUI: async () => {
+        await App.updateActiveProfit();
+        await App.updateActiveCommission();
+        await App.updateLockBox();
+        await App.updatePercentRate(web3.toWei(App.currentAddressLockBox));
+        await App.updateRewardsAvailable();
+        await App.updateProfitWithdrawalsTotal();
+    },
+
+    updateLockBox: async () => {
+        App.currentAddressLockBox = web3.fromWei(await App.getLockBoxPromise(), 'ether').toString();
+        document.getElementById("activeLockBox").innerText = App.currentAddressLockBox + " ETH";
+    },
+
+    updateActiveProfit: async () => {
+        App.currentAddressActiveProfit = web3.fromWei(await App.getActiveProfitPromise(), 'ether').toString();
+        document.getElementById("activeProfit").innerText = App.currentAddressActiveProfit;
+    },
+
+    updateActiveCommission: async () => {
+        App.currentAddressActiveCommisiion = web3.fromWei(await App.getActiveCommissionPromise(), 'ether').toString();
+        document.getElementById("activeCommision").innerText = App.currentAddressActiveCommisiion;
+    },
+
+    updatePercentRate: async (lockBoxAmount) => {
+        App.currentAddressActivePersent = parseInt(await App.getActivePercentRatePromise(lockBoxAmount)) / 100;
+        document.getElementById("payoutPersent").innerText = App.currentAddressActivePersent;
+    },
+
+    updateRewardsAvailable: async () => {
+        let contractBalance = parseInt(web3.fromWei(await App.getContractBalancePromise(), 'ether'));
+        let guaranteedBalance = parseInt(web3.fromWei(await App.getGuaranteedBalancesPromise(), 'ether'));
+        console.log("contractBalance: ", contractBalance);
+        console.log("guaranteedBalance: ", guaranteedBalance);
+
+        App.rewardsAvailable = (contractBalance - guaranteedBalance).toString();
+        document.getElementById("totalRewardsPool").innerText = App.rewardsAvailable;
+    },
+
+    updateProfitWithdrawalsTotal: async () => {
+        App.profitWithdrawalsTotal = web3.fromWei(await App.getProfitWithdrawalsTotalPromise(), 'ether').toString();
+        document.getElementById("profitWithdrawalsTotal").innerText = App.profitWithdrawalsTotal;
     },
 
     //  READ
 
-    getLockBox: async () => {
+    getLockBoxPromise: async () => {
         console.log("getLockBox start... ");
-        App.onigiriBankContract.getLockBox((err, res) => {
-            if (err) {
-                console.error(err);
-            } else {
-                App.currentAddressLockBox = res;
-                document.getElementById("ActiveLockBox").innerText = web3.fromWei(res, 'ether') + " ETH";
-            }
-            console.log("getLockBox finish... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.getLockBox(App.currentAddress, (err, res) => {
+                console.log("getLockBox finish... ");
+                if (err) {
+                    reject(err);
+                } else {
+                    // console.log("getLockBox res: ", res);
+                    resolve(res);
+                }
+            });
         });
     },
 
-    getActiveProfit: async () => {
+    getActiveProfitPromise: async () => {
         console.log("getActiveProfit start... ");
-        App.onigiriBankContract.calculateProfit(App.currentAddress, (err, res) => {
-            if (err) {
-                console.error(err);
-            } else {
-                document.getElementById("activeProfit").innerText = web3.fromWei(res, 'ether') + " ETH";
-            }
-            console.log("getActiveProfit finish... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.calculateProfit(App.currentAddress, (err, res) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    console.log("getActiveProfit: ", res);
+                    resolve(res)
+                }
+                console.log("getActiveProfit finish... ");
+            });
+        });
+    },
+
+    getActiveCommissionPromise: async () => {
+        console.log("getActiveCommissionPromise start... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.affiliateCommission(App.currentAddress, (err, res) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(res)
+                }
+                console.log("getActiveCommissionPromise finish... ");
+            });
+        });
+    },
+
+    getActivePercentRatePromise: async (lockBoxAmount) => {
+        console.log("getActivePercentRatePromise start... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.percentRatePublic(lockBoxAmount, (err, res) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(res)
+                }
+                console.log("getActivePercentRatePromise finish... ");
+            });
         });
     },
 
@@ -100,6 +226,52 @@ const App = {
         });
     },
 
+    getContractBalancePromise: async () => {
+        console.log("getContractBalancePromise start... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.getBalance((err, res) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(res)
+                }
+                console.log("getContractBalancePromise finish... ");
+            });
+        });
+    },
+
+    getGuaranteedBalancesPromise: async () => {
+        console.log("getGuaranteedBalancesPromise start... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.guaranteedBalance((err, res) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(res)
+                }
+                console.log("getGuaranteedBalancesPromise finish... ");
+            });
+        });
+    },
+
+    getProfitWithdrawalsTotalPromise: async () => {
+        console.log("getProfitWithdrawalsTotalPromise start... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.withdrawnProfitTotal((err, res) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(res)
+                }
+                console.log("getProfitWithdrawalsTotalPromise finish... ");
+            });
+        });
+    },
+
+
     getPayoutPersent: async () => {
         console.log("getPayoutPersent start... ");
         App.onigiriBankContract.percentRate(App.currentAddressLockBox, (err, res) => {
@@ -112,44 +284,108 @@ const App = {
         });
     },
 
+
     //  WRITE
     investETH: async () => {
-        let parsedAmount = parseFloat(document.getElementById("investAmount").value);
-        if (parsedAmount > 0) {
-            let affiliate = "0x000000000000000000000000000000";
+        let amountProvided = document.getElementById("investAmount").value;
 
-            console.log("investETH start... ");
-            return new Promise(resolve => {
-                App.onigiriBankContract.invest(affiliate, (err, res) => {
-                    if (err) {
-                        console.error("invest: ", err);
-                    } else {
-                        resolve(res);
-                    }
-
-                    console.log("investETH finish... ");
-                });
-            });
-
-        } else {
-            alert("wrong amount of ETH");
+        if (amountProvided.length == 0 || isNaN(amountProvided)) {
+            alert("Wrong amount provided");
+            return;
         }
+
+        const MIN_AMOUNT = 0.025; //ETH
+        if (amountProvided < MIN_AMOUNT) {
+            alert("Minimum amount to invest is 0.025 ETH");
+            return;
+        }
+
+        let affilaiateValid = "0x0000000000000000000000000000000000000000";
+        let affiliateProvided = document.getElementById("affiliateAddress").value;
+
+        if (affiliateProvided.length > 0) {
+            let affiliateChecksummed = web3.toChecksumAddress(affiliateProvided);
+            if (!web3.isAddress(affiliateChecksummed)) {
+                alert("wrong affiliate provided");
+                return;
+            }
+
+            affilaiateValid = affiliateChecksummed;
+        }
+        console.log("investETH start... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.invest(affilaiateValid, {
+                value: web3.toWei(amountProvided, "ether")
+            }, (err, res) => {
+                if (err) {
+                    console.error("investETH: ", err);
+                    reject(err);
+                } else {
+                    resolve(res);
+                }
+                console.log("investETH finish... ");
+            });
+        });
     },
 
     withdrawLockbox: async () => {
         console.log("withdrawLockbox start... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.withdrawLockBoxAndClose((err, res) => {
+                if (err) {
+                    console.error("withdrawLockbox: ", err);
+                    reject(err);
+                } else {
+                    resolve(res);
+                }
+                console.log("withdrawLockbox finish... ");
+            });
+        });
     },
 
     withdrawProfit: async () => {
         console.log("withdrawProfit start... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.withdrawProfit((err, res) => {
+                if (err) {
+                    console.error("withdrawProfit: ", err);
+                    reject(err);
+                } else {
+                    resolve(res);
+                }
+                console.log("withdrawProfit finish... ");
+            });
+        });
     },
 
     reinvestProfit: async () => {
         console.log("reinvestProfit start... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.reinvestProfit((err, res) => {
+                if (err) {
+                    console.error("reinvestProfit: ", err);
+                    reject(err);
+                } else {
+                    resolve(res);
+                }
+                console.log("reinvestProfit finish... ");
+            });
+        });
     },
 
     withdrawAffiliateCommision: async () => {
         console.log("withdrawAffiliateCommision start... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.withdrawAffiliateCommission((err, res) => {
+                if (err) {
+                    console.error("withdrawAffiliateCommision: ", err);
+                    reject(err);
+                } else {
+                    resolve(res);
+                }
+                console.log("withdrawAffiliateCommision finish... ");
+            });
+        });
     }
 }
 
@@ -164,7 +400,7 @@ window.addEventListener('load', async () => {
             // Request account access if needed
             await ethereum.enable();
 
-            App.start();
+            App.setup();
         } catch (error) {
             console.error("ethereum.enable() ERROR: ", error);
             alert(error);
@@ -176,12 +412,16 @@ window.addEventListener('load', async () => {
     }
     // Non-dapp browsers...
     else {
-        console.log('Non-Ethereum browser detected. You should consider trying MetaMask!');
+        console.warning('Non-Ethereum browser detected. You should consider trying MetaMask!');
     }
 });
 
 window.addEventListener("focus", async () => {
     console.log("focus");
 
-    App.currentAddress = await App.getCurrentAddress();
+    if (await App.getCurrentAddress() != App.currentAddress) {
+        App.setup();
+    } else {
+        App.updateUI();
+    }
 });

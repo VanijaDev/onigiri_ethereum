@@ -233,7 +233,7 @@ contract Onigiri {
     /**
      * @dev Allows investor to withdraw lockbox funds, close deposit and clear all data.
      * @notice Pending profit stays in contract.
-     * TESTING
+     * TESTED
      */
     function withdrawLockBoxAndClose() public {
         uint256 lockboxAmount = getLockBox(msg.sender);
@@ -274,9 +274,9 @@ contract Onigiri {
      * TESTED
      */
     function calculateProfit(address _investor) public view returns(uint256){
-        uint256 hourDifference = now.sub(investors[_investor].lastInvestmentTime).div(3600);
-        // uint256 hourDifference = now.sub(investors[_investor].lastInvestmentTime).div(60);   //  TODO: use for testing
-        uint256 rate = percentRate(investors[_investor].lockbox);
+        // uint256 hourDifference = now.sub(investors[_investor].lastInvestmentTime).div(3600);   //  TODO: production
+        uint256 hourDifference = now.sub(investors[_investor].lastInvestmentTime).div(60);   //  TODO: testing
+        uint256 rate = percentRateInternal(investors[_investor].lockbox);
         uint256 calculatedPercent = hourDifference.mul(rate);
         return investors[_investor].lockbox.div(100000).mul(calculatedPercent);
     }
@@ -289,9 +289,9 @@ contract Onigiri {
      * @dev Calculates rate for lockbox balance for msg.sender.
      * @param _balance Balance to calculate percentage.
      * @return rate for lockbox balance.
-     * TESTING
+     * TESTED
      */
-    function percentRate(uint256 _balance) public pure returns(uint256) {
+    function percentRateInternal(uint256 _balance) public pure returns(uint256) {
         /**
             ~ .99 -    - 0.6%
             1 ~ 50     - 0.96% 
@@ -309,6 +309,44 @@ contract Onigiri {
         uint256 dailyPercent_2 = 50;   //  1.2%
         uint256 dailyPercent_3 = 60;   //  1.44%
         uint256 dailyPercent_4 = 75;   //  1.8%
+
+        if (_balance >= step_4) {
+            return dailyPercent_4;
+        } else if (_balance >= step_3 && _balance < step_4) {
+            return dailyPercent_3;
+        } else if (_balance >= step_2 && _balance < step_3) {
+            return dailyPercent_2;
+        } else if (_balance >= step_1 && _balance < step_2) {
+            return dailyPercent_1;
+        }
+
+        return dailyPercent_0;
+    }
+
+    /**
+     * @dev Calculates rate for lockbox balance for msg.sender. User for public
+     * @param _balance Balance to calculate percentage.
+     * @return rate for lockbox balance.
+     * TESTED
+     */
+    function percentRatePublic(uint256 _balance) public pure returns(uint256) {
+        /**
+            ~ .99 -    - 0.6%
+            1 ~ 50     - 0.96% 
+            51 ~ 100   - 1.2% 
+            100 ~ 250  - 1.44% 
+            250 ~      - 1.8% 
+         */
+        uint256 step_1 = .99 ether;
+        uint256 step_2 = 50 ether;
+        uint256 step_3 = 100 ether;
+        uint256 step_4 = 250 ether;
+
+        uint256 dailyPercent_0 = 60;   //  0.6%
+        uint256 dailyPercent_1 = 96;   //  0.96%
+        uint256 dailyPercent_2 = 120;   //  1.2%
+        uint256 dailyPercent_3 = 144;   //  1.44%
+        uint256 dailyPercent_4 = 180;   //  1.8%
 
         if (_balance >= step_4) {
             return dailyPercent_4;

@@ -1,5 +1,5 @@
 let OnigiriData = {
-    address: "0xA351733D28f7b592D62F128aFe983d29952De2E4",
+    address: "0xf506e23501a7Db26845c5069C9f019D13D48413d",
     abi: [{
             "constant": true,
             "inputs": [],
@@ -10,7 +10,8 @@ let OnigiriData = {
             }],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0x197748e0"
         },
         {
             "constant": true,
@@ -22,7 +23,8 @@ let OnigiriData = {
             }],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0x2b711051"
         },
         {
             "constant": true,
@@ -34,7 +36,8 @@ let OnigiriData = {
             }],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0x63fd9e38"
         },
         {
             "constant": true,
@@ -62,7 +65,8 @@ let OnigiriData = {
             ],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0x6f7bc9be"
         },
         {
             "constant": true,
@@ -74,7 +78,8 @@ let OnigiriData = {
             }],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0x7cc7310f"
         },
         {
             "constant": true,
@@ -89,7 +94,8 @@ let OnigiriData = {
             }],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0x98f3f8e6"
         },
         {
             "constant": true,
@@ -101,7 +107,8 @@ let OnigiriData = {
             }],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0xc831ae03"
         },
         {
             "constant": true,
@@ -116,7 +123,8 @@ let OnigiriData = {
             }],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0xc8582572"
         },
         {
             "constant": true,
@@ -128,7 +136,8 @@ let OnigiriData = {
             }],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0xcc38c8ee"
         },
         {
             "constant": true,
@@ -140,7 +149,8 @@ let OnigiriData = {
             }],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0xd6b9bf26"
         },
         {
             "payable": true,
@@ -161,7 +171,8 @@ let OnigiriData = {
                 }
             ],
             "name": "Invested",
-            "type": "event"
+            "type": "event",
+            "signature": "0xc3f75dfc78f6efac88ad5abb5e606276b903647d97b2a62a1ef89840a658bbc3"
         },
         {
             "anonymous": false,
@@ -177,7 +188,8 @@ let OnigiriData = {
                 }
             ],
             "name": "Renvested",
-            "type": "event"
+            "type": "event",
+            "signature": "0x31b79d553a711214890a10f851808f023529bb2f0ce14b7954818f3746c8f174"
         },
         {
             "anonymous": false,
@@ -193,7 +205,8 @@ let OnigiriData = {
                 }
             ],
             "name": "WithdrawnAffiliateCommission",
-            "type": "event"
+            "type": "event",
+            "signature": "0xf00b94e6d3eae70f13396fc1316a95fffe65e4e4268f517278311cd9618e75e3"
         },
         {
             "anonymous": false,
@@ -209,7 +222,8 @@ let OnigiriData = {
                 }
             ],
             "name": "WithdrawnProfit",
-            "type": "event"
+            "type": "event",
+            "signature": "0x9acd446c7c5d67289e9ab24bf8d274c3e60b36709aad13c9ccefec55a25c00bb"
         },
         {
             "anonymous": false,
@@ -225,7 +239,8 @@ let OnigiriData = {
                 }
             ],
             "name": "WithdrawnLockbox",
-            "type": "event"
+            "type": "event",
+            "signature": "0x2a14c6c4baf70f0f57eb7d8bed4856b2a7f80a238a2dce681b404e0cae9dce7b"
         },
         {
             "constant": false,
@@ -234,7 +249,8 @@ let OnigiriData = {
             "outputs": [],
             "payable": true,
             "stateMutability": "payable",
-            "type": "function"
+            "type": "function",
+            "signature": "0xa360fea7"
         },
         {
             "constant": true,
@@ -249,7 +265,8 @@ let OnigiriData = {
             }],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0x2ae2b643"
         },
         {
             "constant": true,
@@ -264,7 +281,8 @@ let OnigiriData = {
             }],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0x5e70dec5"
         },
         {
             "constant": true,
@@ -279,7 +297,8 @@ let OnigiriData = {
             }],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0xae66d948"
         },
         {
             "constant": true,
@@ -294,7 +313,8 @@ let OnigiriData = {
             }],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0x6c116a2e"
         },
         {
             "constant": true,
@@ -306,7 +326,8 @@ let OnigiriData = {
             }],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0x12065fe0"
         },
         {
             "constant": true,
@@ -318,7 +339,8 @@ let OnigiriData = {
             }],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0x550dd212"
         },
         {
             "constant": false,
@@ -330,7 +352,8 @@ let OnigiriData = {
             "outputs": [],
             "payable": true,
             "stateMutability": "payable",
-            "type": "function"
+            "type": "function",
+            "signature": "0x03f9c793"
         },
         {
             "constant": false,
@@ -342,7 +365,8 @@ let OnigiriData = {
             "outputs": [],
             "payable": false,
             "stateMutability": "nonpayable",
-            "type": "function"
+            "type": "function",
+            "signature": "0x15682cc9"
         },
         {
             "constant": false,
@@ -351,7 +375,8 @@ let OnigiriData = {
             "outputs": [],
             "payable": false,
             "stateMutability": "nonpayable",
-            "type": "function"
+            "type": "function",
+            "signature": "0x699333aa"
         },
         {
             "constant": false,
@@ -360,7 +385,8 @@ let OnigiriData = {
             "outputs": [],
             "payable": false,
             "stateMutability": "nonpayable",
-            "type": "function"
+            "type": "function",
+            "signature": "0xb77fc549"
         },
         {
             "constant": false,
@@ -369,7 +395,8 @@ let OnigiriData = {
             "outputs": [],
             "payable": false,
             "stateMutability": "nonpayable",
-            "type": "function"
+            "type": "function",
+            "signature": "0x959499b6"
         },
         {
             "constant": false,
@@ -378,7 +405,8 @@ let OnigiriData = {
             "outputs": [],
             "payable": false,
             "stateMutability": "nonpayable",
-            "type": "function"
+            "type": "function",
+            "signature": "0xc1a63517"
         },
         {
             "constant": false,
@@ -387,7 +415,8 @@ let OnigiriData = {
             "outputs": [],
             "payable": false,
             "stateMutability": "nonpayable",
-            "type": "function"
+            "type": "function",
+            "signature": "0xe3b61135"
         },
         {
             "constant": true,
@@ -402,7 +431,8 @@ let OnigiriData = {
             }],
             "payable": false,
             "stateMutability": "view",
-            "type": "function"
+            "type": "function",
+            "signature": "0xb1c17506"
         },
         {
             "constant": true,
@@ -410,16 +440,38 @@ let OnigiriData = {
                 "name": "_balance",
                 "type": "uint256"
             }],
-            "name": "percentRate",
+            "name": "percentRateInternal",
             "outputs": [{
                 "name": "",
                 "type": "uint256"
             }],
             "payable": false,
             "stateMutability": "pure",
-            "type": "function"
+            "type": "function",
+            "signature": "0x567541a9"
+        },
+        {
+            "constant": true,
+            "inputs": [{
+                "name": "_balance",
+                "type": "uint256"
+            }],
+            "name": "percentRatePublic",
+            "outputs": [{
+                "name": "",
+                "type": "uint256"
+            }],
+            "payable": false,
+            "stateMutability": "pure",
+            "type": "function",
+            "signature": "0xe1f4e68d"
         }
     ],
+
+
+
+
+
 
     build: function () {
         return web3.eth.contract(this.abi).at(this.address);
