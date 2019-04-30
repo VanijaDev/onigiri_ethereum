@@ -31,13 +31,15 @@ const App = {
     },
 
     fetchAffiliateFromURL: () => {
-        //  TODO: Ronald fetch ref
-        let urlParams = new URLSearchParams(window.location.href);
-        let affiliate = urlParams.get('ref');
+        let url = new URL(window.location.href);
+        let searchParams = new URLSearchParams(url.search);
+        let affiliate = searchParams.get('ref');
         console.log("affiliate: ", affiliate);
 
-        if (!isNaN(affiliate)) {
-            document.getElementById("affiliateAddress").innerText = affiliate;
+        if (!isNaN(affiliate) && affiliate != App.currentAddress) {
+            document.getElementById("affiliateAddress").value = affiliate;
+        } else {
+            document.getElementById("affiliateAddress").value = "";
         }
     },
 

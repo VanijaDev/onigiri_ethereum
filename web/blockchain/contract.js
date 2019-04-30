@@ -1,5 +1,5 @@
 let OnigiriData = {
-    address: "0xf506e23501a7Db26845c5069C9f019D13D48413d",
+    address: "0xEbc2d8b97e40F915D35B90cb54587AF375FeF60b",
     abi: [{
             "constant": true,
             "inputs": [],
