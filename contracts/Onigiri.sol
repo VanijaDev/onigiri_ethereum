@@ -24,9 +24,9 @@ contract Onigiri {
     uint256 public donatedTotal;
     uint256 public gamesIncomeTotal;
     
-    address private constant dev_0_master = 0xc9d76DB051245846254d3aF4949f1094bEEeE3CE;  //  TODO: Ronald's master
+    address private constant dev_0_master = 0x6a5D9648381b90AF0e6881c26739efA4379c19B2;
     address private constant dev_1_master = 0xDBd32Ef31Fcd7fc1EF028A7471a7A9BFC39ab609;
-    address private dev_0_escrow = 0x92ff09fe4EB65103c7A85c43CbBeafd345Ad41ee;           //  TODO: Ronald's escrow, empty in PROD
+    address private dev_0_escrow = 0xF57924672D6dBF0336c618fDa50E284E02715000;
     address private dev_1_escrow = 0xE4Cf94e5D30FB4406A2B139CD0e872a1C8012dEf;
 
     uint256 public constant minInvest = 0.025 ether;
