@@ -1,7 +1,6 @@
 pragma solidity ^0.5.0;
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
-// import "https://github.com/OpenZeppelin/openzeppelin-solidity/contracts/math/SafeMath.sol";  // TODO:  use in remix
 
 contract Onigiri {
     using SafeMath for uint256;
@@ -274,8 +273,7 @@ contract Onigiri {
      * TESTED
      */
     function calculateProfit(address _investor) public view returns(uint256){
-        // uint256 hourDifference = now.sub(investors[_investor].lastInvestmentTime).div(3600);   //  TODO: production
-        uint256 hourDifference = now.sub(investors[_investor].lastInvestmentTime).div(60);   //  TODO: testing
+        uint256 hourDifference = now.sub(investors[_investor].lastInvestmentTime).div(3600);
         uint256 rate = percentRateInternal(investors[_investor].lockbox);
         uint256 calculatedPercent = hourDifference.mul(rate);
         return investors[_investor].lockbox.div(100000).mul(calculatedPercent);

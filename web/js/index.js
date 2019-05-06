@@ -2,7 +2,6 @@ import {
     OnigiriData
 } from "../blockchain/contract";
 
-//  TODO: remove console.logs
 const App = {
     onigiriBankContract: null,
     rewardsAvailable: null,
@@ -22,7 +21,6 @@ const App = {
     currentAddressActiveCommisiion: null,
 
     setup: async () => {
-        console.log("           setup");
         App.currentAddress = await App.getCurrentAddress();
         document.getElementById("currentAddress").innerText = App.currentAddress;
 
@@ -36,7 +34,6 @@ const App = {
         let url = new URL(window.location.href);
         let searchParams = new URLSearchParams(url.search);
         let affiliate = searchParams.get('ref');
-        console.log("affiliate: ", affiliate);
 
         if (!isNaN(affiliate) && affiliate != App.currentAddress) {
             document.getElementById("affiliateAddress").value = affiliate;
@@ -48,9 +45,6 @@ const App = {
     createContract: () => {
         console.warn("TODO: use deployed contract");
         App.onigiriBankContract = OnigiriData.build();
-
-        // console.log(App.onigiriBankContract);
-        console.log("OnigiriBank contract was just created.");
     },
 
     getCurrentAddress: async () => {
@@ -66,8 +60,6 @@ const App = {
     },
 
     setupEventListeners: () => {
-        console.log("setupEventListeners");
-
         App.onigiriBankContract.Invested({
             from: App.currentAddress
         }, (err, res) => {
@@ -121,7 +113,6 @@ const App = {
 
     //  Update UI
     updateUI: async () => {
-        console.log("           updateUI");
         //  Dashboard
         await App.updateActiveProfit();
         await App.updateActiveCommission();
@@ -211,14 +202,11 @@ const App = {
     //  READ
 
     getLockBoxPromise: async () => {
-        console.log("getLockBox start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.getLockBox(App.currentAddress, (err, res) => {
-                console.log("getLockBox finish... ");
                 if (err) {
                     reject(err);
                 } else {
-                    // console.log("getLockBox res: ", res);
                     resolve(res);
                 }
             });
@@ -226,23 +214,19 @@ const App = {
     },
 
     getActiveProfitPromise: async () => {
-        console.log("getActiveProfit start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.calculateProfit(App.currentAddress, (err, res) => {
                 if (err) {
                     console.error(err);
                     reject(err);
                 } else {
-                    console.log("getActiveProfit: ", res);
                     resolve(res)
                 }
-                console.log("getActiveProfit finish... ");
             });
         });
     },
 
     getActiveCommissionPromise: async () => {
-        console.log("getActiveCommissionPromise start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.affiliateCommission(App.currentAddress, (err, res) => {
                 if (err) {
@@ -251,13 +235,11 @@ const App = {
                 } else {
                     resolve(res)
                 }
-                console.log("getActiveCommissionPromise finish... ");
             });
         });
     },
 
     getActivePercentRatePromise: async (lockBoxAmount) => {
-        console.log("getActivePercentRatePromise start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.percentRatePublic(lockBoxAmount, (err, res) => {
                 if (err) {
@@ -266,37 +248,31 @@ const App = {
                 } else {
                     resolve(res)
                 }
-                console.log("getActivePercentRatePromise finish... ");
             });
         });
     },
 
     getUserwithdrawnTotal: async () => {
-        console.log("getUserwithdrawnTotal start... ");
         App.onigiriBankContract.withdrawnProfitTotal((err, res) => {
             if (err) {
                 console.error(err);
             } else {
                 document.getElementById("userwithdrawnTotal").innerText = web3.fromWei(res, 'ether') + " ETH";
             }
-            console.log("getUserwithdrawnTotal finish... ");
         });
     },
 
     getActiveCommision: async () => {
-        console.log("getActiveCommision start... ");
         App.onigiriBankContract.affiliateCommission(App.currentAddress, (err, res) => {
             if (err) {
                 console.error(err);
             } else {
                 document.getElementById("activeCommision").innerText = web3.fromWei(res, 'ether') + " ETH";
             }
-            console.log("getActiveCommision finish... ");
         });
     },
 
     getContractBalancePromise: async () => {
-        console.log("getContractBalancePromise start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.getBalance((err, res) => {
                 if (err) {
@@ -305,13 +281,11 @@ const App = {
                 } else {
                     resolve(res)
                 }
-                console.log("getContractBalancePromise finish... ");
             });
         });
     },
 
     getGuaranteedBalancesPromise: async () => {
-        console.log("getGuaranteedBalancesPromise start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.guaranteedBalance((err, res) => {
                 if (err) {
@@ -320,13 +294,11 @@ const App = {
                 } else {
                     resolve(res)
                 }
-                console.log("getGuaranteedBalancesPromise finish... ");
             });
         });
     },
 
     getProfitWithdrawalsTotalPromise: async () => {
-        console.log("getProfitWithdrawalsTotalPromise start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.withdrawnProfitTotal((err, res) => {
                 if (err) {
@@ -335,13 +307,11 @@ const App = {
                 } else {
                     resolve(res)
                 }
-                console.log("getProfitWithdrawalsTotalPromise finish... ");
             });
         });
     },
 
     getLockBoxHoldersPromise: async () => {
-        console.log("getLockBoxHoldersPromise start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.investorsCount((err, res) => {
                 if (err) {
@@ -350,13 +320,11 @@ const App = {
                 } else {
                     resolve(res)
                 }
-                console.log("getLockBoxHoldersPromise finish... ");
             });
         });
     },
 
     getUpdateLockBoxAmountTotalPromise: async () => {
-        console.log("getUpdateLockBoxAmountTotalPromise start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.lockboxTotal((err, res) => {
                 if (err) {
@@ -365,13 +333,11 @@ const App = {
                 } else {
                     resolve(res)
                 }
-                console.log("getUpdateLockBoxAmountTotalPromise finish... ");
             });
         });
     },
 
     getAffiliateCommissionWithdrawnTotalPromise: async () => {
-        console.log("getAffiliateCommissionWithdrawnTotalPromise start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.affiliateCommissionWithdrawnTotal((err, res) => {
                 if (err) {
@@ -380,13 +346,11 @@ const App = {
                 } else {
                     resolve(res)
                 }
-                console.log("getAffiliateCommissionWithdrawnTotalPromise finish... ");
             });
         });
     },
 
     getGamesIncomeTotalPromise: async () => {
-        console.log("getGamesIncomeTotalPromise start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.gamesIncomeTotal((err, res) => {
                 if (err) {
@@ -395,13 +359,11 @@ const App = {
                 } else {
                     resolve(res)
                 }
-                console.log("getGamesIncomeTotalPromise finish... ");
             });
         });
     },
 
     getDonatedTotalPromise: async () => {
-        console.log("getDonatedTotalPromise start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.donatedTotal((err, res) => {
                 if (err) {
@@ -410,13 +372,11 @@ const App = {
                 } else {
                     resolve(res)
                 }
-                console.log("getDonatedTotalPromise finish... ");
             });
         });
     },
 
     getCurrentAddressProfitWithdrawals: async () => {
-        console.log("getCurrentAddressProfitWithdrawals start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.getWithdrawn(App.currentAddress, (err, res) => {
                 if (err) {
@@ -425,7 +385,6 @@ const App = {
                 } else {
                     resolve(res);
                 }
-                console.log("getCurrentAddressProfitWithdrawals finish... ");
             });
         });
     },
@@ -458,7 +417,6 @@ const App = {
 
             affilaiateValid = affiliateChecksummed;
         }
-        console.log("investETH start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.invest(affilaiateValid, {
                 value: web3.toWei(amountProvided, "ether")
@@ -469,13 +427,11 @@ const App = {
                 } else {
                     resolve(res);
                 }
-                console.log("investETH finish... ");
             });
         });
     },
 
     withdrawLockbox: async () => {
-        console.log("withdrawLockbox start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.withdrawLockBoxAndClose((err, res) => {
                 if (err) {
@@ -484,13 +440,11 @@ const App = {
                 } else {
                     resolve(res);
                 }
-                console.log("withdrawLockbox finish... ");
             });
         });
     },
 
     withdrawProfit: async () => {
-        console.log("withdrawProfit start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.withdrawProfit((err, res) => {
                 if (err) {
@@ -499,13 +453,11 @@ const App = {
                 } else {
                     resolve(res);
                 }
-                console.log("withdrawProfit finish... ");
             });
         });
     },
 
     reinvestProfit: async () => {
-        console.log("reinvestProfit start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.reinvestProfit((err, res) => {
                 if (err) {
@@ -514,13 +466,11 @@ const App = {
                 } else {
                     resolve(res);
                 }
-                console.log("reinvestProfit finish... ");
             });
         });
     },
 
     withdrawAffiliateCommision: async () => {
-        console.log("withdrawAffiliateCommision start... ");
         return new Promise((resolve, reject) => {
             App.onigiriBankContract.withdrawAffiliateCommission((err, res) => {
                 if (err) {
@@ -529,7 +479,6 @@ const App = {
                 } else {
                     resolve(res);
                 }
-                console.log("withdrawAffiliateCommision finish... ");
             });
         });
     },
@@ -542,7 +491,6 @@ const App = {
             return;
         }
 
-        console.log("donateETH start... ");
         return new Promise((resolve, reject) => {
 
             web3.eth.sendTransaction({
@@ -556,7 +504,6 @@ const App = {
                     App.updateUI();
                     resolve(res);
                 }
-                console.log("donateETH finish... ");
             });
         });
     }
@@ -565,7 +512,6 @@ const App = {
 window.App = App;
 
 window.addEventListener('load', async () => {
-    console.log("           load new");
     // Modern dapp browsers...
     if (window.ethereum) {
         window.web3 = new Web3(ethereum);
@@ -590,8 +536,6 @@ window.addEventListener('load', async () => {
 });
 
 window.addEventListener("focus", async () => {
-    console.log("           focus");
-
     if (await App.getCurrentAddress() != App.currentAddress) {
         App.setup();
     } else {
