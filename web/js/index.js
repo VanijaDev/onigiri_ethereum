@@ -13,6 +13,7 @@ const App = {
     affiliateCommissionWithdrawnTotal: null,
     gamesIncomeTotal: null,
     donatedTotal: null,
+    currentAddressProfitWithdrawals: null,
 
     currentAddress: null,
     currentAddressLockBox: null,
@@ -21,6 +22,7 @@ const App = {
     currentAddressActiveCommisiion: null,
 
     setup: async () => {
+        console.log("           setup");
         App.currentAddress = await App.getCurrentAddress();
         document.getElementById("currentAddress").innerText = App.currentAddress;
 
@@ -119,6 +121,7 @@ const App = {
 
     //  Update UI
     updateUI: async () => {
+        console.log("           updateUI");
         //  Dashboard
         await App.updateActiveProfit();
         await App.updateActiveCommission();
@@ -134,21 +137,22 @@ const App = {
         await App.updateAffiliateCommissionWithdrawnTotal();
         await App.updateGamesIncomeTotal();
         await App.updateDonatedTotalTotal();
+        await App.updateCurrentAddressProfitWithdrawals();
     },
 
     updateLockBox: async () => {
-        App.currentAddressLockBox = web3.fromWei(await App.getLockBoxPromise(), 'ether').toString();
-        document.getElementById("activeLockBox").innerText = App.currentAddressLockBox + " ETH";
+        App.currentAddressLockBox = web3.fromWei(await App.getLockBoxPromise(), 'ether');
+        document.getElementById("activeLockBox").innerText = App.currentAddressLockBox.toFixed(4) + " ETH";
     },
 
     updateActiveProfit: async () => {
-        App.currentAddressActiveProfit = web3.fromWei(await App.getActiveProfitPromise(), 'ether').toString();
-        document.getElementById("activeProfit").innerText = App.currentAddressActiveProfit;
+        App.currentAddressActiveProfit = web3.fromWei(await App.getActiveProfitPromise(), 'ether');
+        document.getElementById("activeProfit").innerText = App.currentAddressActiveProfit.toFixed(4);
     },
 
     updateActiveCommission: async () => {
-        App.currentAddressActiveCommisiion = web3.fromWei(await App.getActiveCommissionPromise(), 'ether').toString();
-        document.getElementById("activeCommision").innerText = App.currentAddressActiveCommisiion;
+        App.currentAddressActiveCommisiion = web3.fromWei(await App.getActiveCommissionPromise(), 'ether');
+        document.getElementById("activeCommision").innerText = App.currentAddressActiveCommisiion.toFixed(4);
     },
 
     updatePercentRate: async (lockBoxAmount) => {
@@ -157,19 +161,16 @@ const App = {
     },
 
     updateRewardsAvailable: async () => {
-        let contractBalance = parseInt(web3.fromWei(await App.getContractBalancePromise(), 'ether'));
-        let guaranteedBalance = parseInt(web3.fromWei(await App.getGuaranteedBalancesPromise(), 'ether'));
-        console.log("contractBalance: ", contractBalance);
-        console.log("guaranteedBalance: ", guaranteedBalance);
+        let contractBalance = web3.fromWei(await App.getContractBalancePromise(), 'ether');
+        let guaranteedBalance = web3.fromWei(await App.getGuaranteedBalancesPromise(), 'ether');
 
-        App.rewardsAvailable = (contractBalance - guaranteedBalance).toString();
-        document.getElementById("totalRewardsPool").innerText = App.rewardsAvailable;
+        App.rewardsAvailable = contractBalance - guaranteedBalance;
+        document.getElementById("totalRewardsPool").innerText = App.rewardsAvailable.toFixed(4);
     },
 
     updateProfitWithdrawalsTotal: async () => {
-        App.profitWithdrawalsTotal = web3.fromWei(await App.getProfitWithdrawalsTotalPromise(), 'ether').toString();
-        document.getElementById("profitWithdrawalsTotal").innerText = App.profitWithdrawalsTotal;
-        document.getElementById("withdrawntotal").innerText = App.profitWithdrawalsTotal;
+        App.profitWithdrawalsTotal = web3.fromWei(await App.getProfitWithdrawalsTotalPromise(), 'ether');
+        document.getElementById("profitWithdrawalsTotal").innerText = App.profitWithdrawalsTotal.toFixed(4);
     },
 
     updateLockBoxHolders: async () => {
@@ -178,28 +179,33 @@ const App = {
     },
 
     updateLockBoxAmountTotal: async () => {
-        App.lockBoxAmountTotal = web3.fromWei(await App.getUpdateLockBoxAmountTotalPromise(), 'ether').toFixed(4).toString();
-        document.getElementById("lockBoxAmountTotal").innerText = App.lockBoxAmountTotal;
+        App.lockBoxAmountTotal = web3.fromWei(await App.getUpdateLockBoxAmountTotalPromise(), 'ether');
+        document.getElementById("lockBoxAmountTotal").innerText = App.lockBoxAmountTotal.toFixed(4);
     },
 
     updateContractBalance: async () => {
-        App.contractBalance = web3.fromWei(await App.getContractBalancePromise(), 'ether').toFixed(4).toString();
-        document.getElementById("contractBalance").innerText = App.contractBalance;
+        App.contractBalance = web3.fromWei(await App.getContractBalancePromise(), 'ether');
+        document.getElementById("contractBalance").innerText = App.contractBalance.toFixed(4);
     },
 
     updateAffiliateCommissionWithdrawnTotal: async () => {
-        App.affiliateCommissionWithdrawnTotal = web3.fromWei(await App.getAffiliateCommissionWithdrawnTotalPromise(), 'ether').toFixed(4).toString();
-        document.getElementById("affiliateCommissionWithdrawnTotal").innerText = App.affiliateCommissionWithdrawnTotal;
+        App.affiliateCommissionWithdrawnTotal = web3.fromWei(await App.getAffiliateCommissionWithdrawnTotalPromise(), 'ether');
+        document.getElementById("affiliateCommissionWithdrawnTotal").innerText = App.affiliateCommissionWithdrawnTotal.toFixed(4);
     },
 
     updateGamesIncomeTotal: async () => {
-        App.gamesIncomeTotal = web3.fromWei(await App.getGamesIncomeTotalPromise(), 'ether').toFixed(4).toString();
-        document.getElementById("gamesIncomeTotal").innerText = App.gamesIncomeTotal;
+        App.gamesIncomeTotal = web3.fromWei(await App.getGamesIncomeTotalPromise(), 'ether');
+        document.getElementById("gamesIncomeTotal").innerText = App.gamesIncomeTotal.toFixed(4);
     },
 
     updateDonatedTotalTotal: async () => {
-        App.donatedTotal = web3.fromWei(await App.getDonatedTotalPromise(), 'ether').toFixed(4).toString();
-        document.getElementById("donatedTotal").innerText = App.donatedTotal;
+        App.donatedTotal = web3.fromWei(await App.getDonatedTotalPromise(), 'ether');
+        document.getElementById("donatedTotal").innerText = App.donatedTotal.toFixed(4);
+    },
+
+    updateCurrentAddressProfitWithdrawals: async () => {
+        App.currentAddressProfitWithdrawals = web3.fromWei(await App.getCurrentAddressProfitWithdrawals(), 'ether');
+        document.getElementById("withdrawnByInvestor").innerText = App.currentAddressProfitWithdrawals.toFixed(4);
     },
 
     //  READ
@@ -409,15 +415,18 @@ const App = {
         });
     },
 
-    getPayoutPersent: async () => {
-        console.log("getPayoutPersent start... ");
-        App.onigiriBankContract.percentRate(App.currentAddressLockBox, (err, res) => {
-            if (err) {
-                console.error(err);
-            } else {
-                document.getElementById("payoutPersent").innerText = web3.fromWei(res, 'ether') + " ETH";
-            }
-            console.log("getPayoutPersent finish... ");
+    getCurrentAddressProfitWithdrawals: async () => {
+        console.log("getCurrentAddressProfitWithdrawals start... ");
+        return new Promise((resolve, reject) => {
+            App.onigiriBankContract.getWithdrawn(App.currentAddress, (err, res) => {
+                if (err) {
+                    console.error(err);
+                    reject(err);
+                } else {
+                    resolve(res);
+                }
+                console.log("getCurrentAddressProfitWithdrawals finish... ");
+            });
         });
     },
 
@@ -523,13 +532,40 @@ const App = {
                 console.log("withdrawAffiliateCommision finish... ");
             });
         });
+    },
+
+    donateETH: async () => {
+        let donateAmountProvided = document.getElementById("donateAmount").value;
+
+        if (donateAmountProvided.length == 0 || isNaN(donateAmountProvided)) {
+            alert("Wrong amount provided");
+            return;
+        }
+
+        console.log("donateETH start... ");
+        return new Promise((resolve, reject) => {
+
+            web3.eth.sendTransaction({
+                to: App.onigiriBankContract.address,
+                value: web3.toWei(donateAmountProvided, "ether")
+            }, (err, res) => {
+                if (err) {
+                    console.error("donateETH: ", err);
+                    reject(err);
+                } else {
+                    App.updateUI();
+                    resolve(res);
+                }
+                console.log("donateETH finish... ");
+            });
+        });
     }
 }
 
 window.App = App;
 
 window.addEventListener('load', async () => {
-    console.log("load new");
+    console.log("           load new");
     // Modern dapp browsers...
     if (window.ethereum) {
         window.web3 = new Web3(ethereum);
@@ -554,7 +590,7 @@ window.addEventListener('load', async () => {
 });
 
 window.addEventListener("focus", async () => {
-    console.log("focus");
+    console.log("           focus");
 
     if (await App.getCurrentAddress() != App.currentAddress) {
         App.setup();

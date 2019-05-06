@@ -201,7 +201,7 @@
           <div class="feature-item"><i class="icon-arrow-down text-primary"></i>
             <h4>Withdrawn</h4>
 
-            <h5>Withdrawn Earnings <span id="withdrawntotal" style="font-weight: bold">0.0000</span> </h5>
+            <h5>Withdrawn Earnings <span id="withdrawnByInvestor" style="font-weight: bold">0.0000</span> </h5>
             <!--Need to figure this out-->
           </div>
         </div>
@@ -375,9 +375,9 @@
             <h2>Show Your Support<br>
               Donate Ethereum.</h2>
             <h4>All proceeds go back into the main contract. Big Mahalo!</h4>
-            <input type="text" style="width:25%;" placeholder="Amount of ETH..." id="investAmount"></input>
+            <input type="text" style="width:25%;" placeholder="Amount of ETH..." id="donateAmount"></input>
             <br>
-            <button class="btn btn-warning btn-xl " onclick="donateETH(sent)">Donate</button>
+            <button class="btn btn-warning btn-xl " onclick="App.donateETH()">Donate</button>
           </div>
           <div class="col-sm-5">
             <h2>Roadmap</h2>
