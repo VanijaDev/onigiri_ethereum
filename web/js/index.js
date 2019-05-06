@@ -43,7 +43,6 @@ const App = {
     },
 
     createContract: () => {
-        console.warn("TODO: use deployed contract");
         App.onigiriBankContract = OnigiriData.build();
     },
 
