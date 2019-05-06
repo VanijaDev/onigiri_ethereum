@@ -280,10 +280,6 @@ contract Onigiri {
     }
 
     /**
-     * PRIVATE
-     */
-
-    /**
      * @dev Calculates rate for lockbox balance for msg.sender.
      * @param _balance Balance to calculate percentage.
      * @return rate for lockbox balance.
