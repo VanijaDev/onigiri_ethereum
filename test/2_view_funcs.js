@@ -88,7 +88,7 @@ contract("View functions", (accounts) => {
       await time.increase(time.duration.days(1));
       let profit = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
 
-      await onigiri.withdrawProfit({
+      await onigiri.withdrawProfit(profit, {
         from: INVESTOR_0
       });
 
@@ -110,14 +110,14 @@ contract("View functions", (accounts) => {
       //  2 - withdraw profit
       await time.increase(time.duration.days(1));
       let profit_0 = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
-      await onigiri.withdrawProfit({
+      await onigiri.withdrawProfit(profit_0, {
         from: INVESTOR_0
       });
 
       //  3 - withdraw profit
       await time.increase(time.duration.days(2));
       let profit_1 = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
-      await onigiri.withdrawProfit({
+      await onigiri.withdrawProfit(profit_1, {
         from: INVESTOR_0
       });
 
@@ -182,7 +182,7 @@ contract("View functions", (accounts) => {
       //  4 - withdraw
       let profit = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
       let devCommissionFromProfit = profit.div(new web3.utils.BN(100));
-      await onigiri.withdrawProfit({
+      await onigiri.withdrawProfit(profit, {
         from: INVESTOR_0
       });
 
@@ -356,7 +356,8 @@ contract("View functions", (accounts) => {
       });
       await time.increase(time.duration.hours(1));
 
-      await onigiri.withdrawProfit({
+      let profit = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
+      await onigiri.withdrawProfit(profit, {
         from: INVESTOR_0
       });
 
@@ -439,7 +440,7 @@ contract("View functions", (accounts) => {
     });
   });
 
-  describe("percentRate", () => {
+  describe("percentRateInternal", () => {
     /**
       ~ .99 -    - 0.6%
       1 ~ 50     - 0.96% 
@@ -448,23 +449,23 @@ contract("View functions", (accounts) => {
       250 ~      - 1.8% 
     */
     it("should return 25 for 0.5 eth", async () => {
-      assert.equal(0, new web3.utils.BN("25").cmp(await onigiri.percentRate.call(ether("0.5"))), "should be 25");
+      assert.equal(0, new web3.utils.BN("25").cmp(await onigiri.percentRateInternal.call(ether("0.5"))), "should be 25");
     });
 
     it("should return 40 for 45 eth", async () => {
-      assert.equal(0, new web3.utils.BN("40").cmp(await onigiri.percentRate.call(ether("45"))), "should be 40");
+      assert.equal(0, new web3.utils.BN("40").cmp(await onigiri.percentRateInternal.call(ether("45"))), "should be 40");
     });
 
     it("should return 50 for 95 eth", async () => {
-      assert.equal(0, new web3.utils.BN("50").cmp(await onigiri.percentRate.call(ether("95"))), "should be 50");
+      assert.equal(0, new web3.utils.BN("50").cmp(await onigiri.percentRateInternal.call(ether("95"))), "should be 50");
     });
 
     it("should return 60 for 215 eth", async () => {
-      assert.equal(0, new web3.utils.BN("60").cmp(await onigiri.percentRate.call(ether("215"))), "should be 60");
+      assert.equal(0, new web3.utils.BN("60").cmp(await onigiri.percentRateInternal.call(ether("215"))), "should be 60");
     });
 
     it("should return 75 for 251 eth", async () => {
-      assert.equal(0, new web3.utils.BN("75").cmp(await onigiri.percentRate.call(ether("251"))), "should be 75");
+      assert.equal(0, new web3.utils.BN("75").cmp(await onigiri.percentRateInternal.call(ether("251"))), "should be 75");
     });
   });
 });

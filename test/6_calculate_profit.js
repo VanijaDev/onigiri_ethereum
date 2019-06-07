@@ -150,6 +150,32 @@ contract("View functions", (accounts) => {
 
     /*
     it.only("should get correct calculateProfit for 1 hour", async () => {
+      //  1 - invest to get above 500 ETH
+      for (let i = 0; i < 14; i++) {
+        let addr;
+        if (i < 2) {
+          addr = OTHER_ADDR
+        } else if (i < 4) {
+          addr = REFERRAL_0;
+        } else if (i < 6) {
+          addr = REFERRAL_1;
+        } else if (i < 8) {
+          addr = DEV_0_ESCROW;
+        } else if (i < 10) {
+          addr = DEV_1_ESCROW;
+        } else if (i < 12) {
+          addr = DEV_0_MASTER;
+        } else if (i < 14) {
+          addr = INVESTOR_1;
+        }
+
+        await onigiri.invest(REFERRAL_0, {
+          from: addr,
+          value: ether("45")
+        });
+      }
+
+      //  2 - test
       await onigiri.invest(REFERRAL_0, {
         from: INVESTOR_0,
         value: ether("60")
@@ -169,6 +195,32 @@ contract("View functions", (accounts) => {
 
     /*
     it.only("should get correct calculateProfit for 1 day", async () => {
+      //  1 - invest to get above 500 ETH
+      for (let i = 0; i < 14; i++) {
+        let addr;
+        if (i < 2) {
+          addr = OTHER_ADDR
+        } else if (i < 4) {
+          addr = REFERRAL_0;
+        } else if (i < 6) {
+          addr = REFERRAL_1;
+        } else if (i < 8) {
+          addr = DEV_0_ESCROW;
+        } else if (i < 10) {
+          addr = DEV_1_ESCROW;
+        } else if (i < 12) {
+          addr = DEV_0_MASTER;
+        } else if (i < 14) {
+          addr = INVESTOR_1;
+        }
+
+        await onigiri.invest(REFERRAL_0, {
+          from: addr,
+          value: ether("45")
+        });
+      }
+
+      //  2 - test
       await onigiri.invest(REFERRAL_0, {
         from: INVESTOR_0,
         value: ether("60") //  50.4 in lockbox
@@ -188,6 +240,32 @@ contract("View functions", (accounts) => {
 
     /*
     it.only("should get correct calculateProfit for 1 week", async () => {
+      //  1 - invest to get above 500 ETH
+      for (let i = 0; i < 14; i++) {
+        let addr;
+        if (i < 2) {
+          addr = OTHER_ADDR
+        } else if (i < 4) {
+          addr = REFERRAL_0;
+        } else if (i < 6) {
+          addr = REFERRAL_1;
+        } else if (i < 8) {
+          addr = DEV_0_ESCROW;
+        } else if (i < 10) {
+          addr = DEV_1_ESCROW;
+        } else if (i < 12) {
+          addr = DEV_0_MASTER;
+        } else if (i < 14) {
+          addr = INVESTOR_1;
+        }
+
+        await onigiri.invest(REFERRAL_0, {
+          from: addr,
+          value: ether("45")
+        });
+      }
+
+      //  2 - test
       await onigiri.invest(REFERRAL_0, {
         from: INVESTOR_0,
         value: ether("60") //  50.4 in lockbox

@@ -29,7 +29,7 @@ contract("Investments and donations", (accounts) => {
   });
 
   describe("Donations", () => {
-    it("should update donations correctly", async () => {
+    it("should update donations correctly from fallback", async () => {
       assert.equal(0, ether("0").cmp(await onigiri.donatedTotal.call()), "donatedTotal should 0 before");
 
       await web3.eth.sendTransaction({
@@ -41,13 +41,37 @@ contract("Investments and donations", (accounts) => {
       assert.equal(0, ether("1").cmp(await onigiri.donatedTotal.call()), "donatedTotal should 1 eth after");
     });
 
-    it("should update dev fee correctly", async () => {
+    it("should update dev fee correctly from fallback", async () => {
       assert.equal(0, ether("0").cmp(await onigiri.devCommission.call(DEV_0_ESCROW)), "dev 0 fee should 0 before");
       assert.equal(0, ether("0").cmp(await onigiri.devCommission.call(DEV_1_ESCROW)), "dev 1 fee should 0 before");
 
       await web3.eth.sendTransaction({
         from: OTHER_ADDR,
         to: onigiri.address,
+        value: ether("1")
+      });
+
+      assert.equal(0, ether("0.01").cmp(await onigiri.devCommission.call(DEV_0_ESCROW)), "dev 0 fee should 0.01 after");
+      assert.equal(0, ether("0.01").cmp(await onigiri.devCommission.call(DEV_1_ESCROW)), "dev 1 fee should 0.01 after");
+    });
+
+    it("should update donations correctly from donate", async () => {
+      assert.equal(0, ether("0").cmp(await onigiri.donatedTotal.call()), "donatedTotal should 0 before");
+
+      await onigiri.donate({
+        from: OTHER_ADDR,
+        value: ether("1")
+      });
+
+      assert.equal(0, ether("1").cmp(await onigiri.donatedTotal.call()), "donatedTotal should 1 eth after");
+    });
+
+    it("should update dev fee correctly from donate", async () => {
+      assert.equal(0, ether("0").cmp(await onigiri.devCommission.call(DEV_0_ESCROW)), "dev 0 fee should 0 before");
+      assert.equal(0, ether("0").cmp(await onigiri.devCommission.call(DEV_1_ESCROW)), "dev 1 fee should 0 before");
+
+      await onigiri.donate({
+        from: OTHER_ADDR,
         value: ether("1")
       });
 
@@ -115,7 +139,7 @@ contract("Investments and donations", (accounts) => {
       await time.increase(time.duration.hours(1));
       let balanceBefore = new web3.utils.BN(await web3.eth.getBalance(INVESTOR_0));
 
-      const CORRECT_PROFIT = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
+      const CORRECT_PROFIT = (new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0))).mul(new web3.utils.BN(95)).div(new web3.utils.BN(100));
 
       let investTX = await onigiri.invest(REFERRAL_0, {
         from: INVESTOR_0,
@@ -260,7 +284,8 @@ contract("Investments and donations", (accounts) => {
 
       //  2 - withdraw profit
       await time.increase(time.duration.days(1));
-      await onigiri.withdrawProfit({
+      let profit = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0)).mul(new web3.utils.BN(95)).div(new web3.utils.BN(100));
+      await onigiri.withdrawProfit(profit, {
         from: INVESTOR_0
       });
 

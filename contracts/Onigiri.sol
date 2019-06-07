@@ -24,10 +24,10 @@ contract Onigiri {
     uint256 public donatedTotal;
     uint256 public gamesIncomeTotal;
     
-    address private constant dev_0_master = 0x6a5D9648381b90AF0e6881c26739efA4379c19B2;
-    address private constant dev_1_master = 0xDBd32Ef31Fcd7fc1EF028A7471a7A9BFC39ab609;
-    address private dev_0_escrow = 0xF57924672D6dBF0336c618fDa50E284E02715000;
-    address private dev_1_escrow = 0xE4Cf94e5D30FB4406A2B139CD0e872a1C8012dEf;
+    address private constant dev_0_master = 0xc9d76DB051245846254d3aF4949f1094bEEeE3CE;
+    address private constant dev_1_master = 0xb37277d6558D41fAdd2a291AB0bD398D4564Be40;
+    address private dev_0_escrow = 0x92ff09fe4EB65103c7A85c43CbBeafd345Ad41ee;
+    address private dev_1_escrow = 0xA8265C1f1e158519C96A182fdAf14913D21e31E0;
 
     uint256 public constant minInvest = 0.025 ether;
 
@@ -40,12 +40,15 @@ contract Onigiri {
     /**
      * PUBLIC
      */
+     function() external payable {
+        donate();
+     }
 
      /**
      * @dev Donation for Onigiry ecosystem.
      * TESTED
      */
-    function() external payable {
+    function donate() public payable {
         //  2% - to developers
         uint256 devFee = msg.value.div(100);
         devCommission[dev_0_escrow] = devCommission[dev_0_escrow].add(devFee);
@@ -132,10 +135,15 @@ contract Onigiri {
      */
     function invest(address _affiliate) public payable {
         require(msg.value >= minInvest, "min 0.025 eth");
+        if(lockboxTotal <= 500 ether) {
+            require(msg.value <= 50 ether, "max invest 50 eth");
+        }
 
         uint256 profit = calculateProfit(msg.sender);
         if(profit > 0){
-            msg.sender.transfer(profit);
+            if(address(this).balance.sub(profit) >= guaranteedBalance()) {
+                withdrawProfitFor(msg.sender, profit);
+            }
         }
 
         //  1% - to affiliateCommission
@@ -206,28 +214,40 @@ contract Onigiri {
 
     /**
      * @dev Allows investor to withdraw profit.
+     * @param _amount   Amount to withdraw.
      * TESTED
      */
-    function withdrawProfit() public {
-        uint256 profit = calculateProfit(msg.sender);
-        require(profit > 0, "no profit");
-        require(address(this).balance.sub(profit) >= guaranteedBalance(), "not enough funds");
+    function withdrawProfit(uint256 _amount) public {
+        withdrawProfitFor(msg.sender, _amount);
+    }
 
-        investors[msg.sender].lastInvestmentTime = now;
-        investors[msg.sender].withdrawn = investors[msg.sender].withdrawn.add(profit);
+    /**
+     * @dev Wothdraws profit for investor.
+     * @param _investor     Investor address.
+     * @param _amount       Amount to withdraw.
+     */
+     function withdrawProfitFor(address payable _investor, uint256 _amount) private {
+        require(_amount > 0, "must be > 0");
 
-        withdrawnProfitTotal = withdrawnProfitTotal.add(profit);
+        uint256 profit = calculateProfit(_investor);
+        require(_amount <= profit, "not enough profit");
+        require(address(this).balance.sub(_amount) >= guaranteedBalance(), "not enough funds");
+
+        investors[_investor].lastInvestmentTime = now;
+        investors[_investor].withdrawn = investors[_investor].withdrawn.add(_amount);
+
+        withdrawnProfitTotal = withdrawnProfitTotal.add(_amount);
         
         //  2% - to developers
-        uint256 devFee = profit.div(100);
+        uint256 devFee = _amount.div(100);
         devCommission[dev_0_escrow] = devCommission[dev_0_escrow].add(devFee);
         devCommission[dev_1_escrow] = devCommission[dev_1_escrow].add(devFee);
         
         //  3% - stay in contract
-        msg.sender.transfer(profit.div(100).mul(95));
+        _investor.transfer(_amount.div(100).mul(95));
 
-        emit WithdrawnProfit(msg.sender, profit);
-    }
+        emit WithdrawnProfit(_investor, _amount);
+     }
 
     /**
      * @dev Allows investor to withdraw lockbox funds, close deposit and clear all data.
