@@ -267,7 +267,7 @@ contract("Investments and donations", (accounts) => {
         from: INVESTOR_0,
         value: ether("0.1")
       });
-      assert.equal(0, (await time.latest()).cmp((await onigiri.investors.call(INVESTOR_0)).lastInvestmentTime), "lastInvestmentTime should be 0 before");
+      assert.equal(0, (await time.latest()).cmp((await onigiri.investors.call(INVESTOR_0)).lastInvestmentTime), "lastInvestmentTime should be updated after");
     });
 
     it("should clear withdrawn after investment", async () => {

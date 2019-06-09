@@ -44,6 +44,7 @@ contract("Updating values", (accounts) => {
       });
 
       let event = tx.logs[0];
+      assert.equal("Invested", event.event, "wrong event name");
       assert.equal(INVESTOR_1, event.args.investor, "wrong investor address");
       assert.equal(0, ether("0.5").cmp(new web3.utils.BN(event.args.amount)), "wrong amount");
     });
@@ -79,6 +80,7 @@ contract("Updating values", (accounts) => {
       });
 
       let event = tx.logs[0];
+      assert.equal("Reinvested", event.event, "wrong event name");
       assert.equal(INVESTOR_1, event.args.investor, "wrong investor address");
       assert.equal(0, profit.cmp(new web3.utils.BN(event.args.amount)), "wrong amount");
     });
@@ -114,6 +116,7 @@ contract("Updating values", (accounts) => {
       });
 
       let event = tx.logs[0];
+      assert.equal("WithdrawnAffiliateCommission", event.event, "wrong event name");
       assert.equal(REFERRAL_1, event.args.affiliate, "wrong affiliate address");
       assert.equal(0, commission.cmp(new web3.utils.BN(event.args.amount)), "wrong amount");
     });
@@ -150,6 +153,7 @@ contract("Updating values", (accounts) => {
       });
 
       let event = tx.logs[0];
+      assert.equal("WithdrawnProfit", event.event, "wrong event name");
       assert.equal(INVESTOR_1, event.args.investor, "wrong investor address");
       assert.equal(0, profit.cmp(new web3.utils.BN(event.args.amount)), "wrong amount");
     });
@@ -186,10 +190,40 @@ contract("Updating values", (accounts) => {
       });
 
       let event = tx.logs[0];
+      assert.equal("WithdrawnLockbox", event.event, "wrong event name");
       assert.equal(INVESTOR_1, event.args.investor, "wrong investor address");
       assert.equal(0, lockboxAmount.cmp(new web3.utils.BN(event.args.amount)), "wrong amount");
     });
   });
 
+  describe("Migrated", () => {
+    it("should emit single event on migration function", async () => {
+      let addresses = [INVESTOR_0, INVESTOR_1];
+      let amounts = [ether("2.5"), ether("2")];
+      await onigiri.addAddressesAndAmountsToMigrate(addresses, amounts);
 
+      let tx = await onigiri.migrateFunds({
+        from: INVESTOR_0,
+        value: ether("2.5")
+      });
+
+      assert.equal(1, tx.logs.length, "should be 1 event");
+    });
+
+    it("should validate WithdrawnLockbox includes correct data", async () => {
+      let addresses = [INVESTOR_0, INVESTOR_1];
+      let amounts = [ether("2.5"), ether("2")];
+      await onigiri.addAddressesAndAmountsToMigrate(addresses, amounts);
+
+      let tx = await onigiri.migrateFunds({
+        from: INVESTOR_0,
+        value: ether("2.5")
+      });
+
+      let event = tx.logs[0];
+      assert.equal("Migrated", event.event, "wrong event name");
+      assert.equal(INVESTOR_0, event.args.investor, "wrong migrator address");
+      assert.equal(ether("2.5").toString(), event.args.amount.toString(), "wrong amount");
+    });
+  });
 });

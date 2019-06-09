@@ -1,8 +1,9 @@
 pragma solidity ^0.5.0;
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
+import "../node_modules/openzeppelin-solidity/contracts/ownership/Ownable.sol";
 
-contract Onigiri {
+contract Onigiri is Ownable {
     using SafeMath for uint256;
 
     struct InvestorInfo {
@@ -15,6 +16,7 @@ contract Onigiri {
     mapping (address => InvestorInfo) public investors;
     mapping (address => uint256) public affiliateCommission;
     mapping (address => uint256) public devCommission;
+    mapping (address => uint256) public amountForAddressToMigrate;
 
     uint256 public investorsCount;
     uint256 public lockboxTotal;
@@ -30,9 +32,12 @@ contract Onigiri {
     address private dev_1_escrow = 0xA8265C1f1e158519C96A182fdAf14913D21e31E0;
 
     uint256 public constant minInvest = 0.025 ether;
+    uint256 public constant whaleLimitLockbox = 500 ether;
+    uint256 public constant whaleLimitInvest = 50 ether;
 
+    event Migrated(address investor, uint256 amount);
     event Invested(address investor, uint256 amount);
-    event Renvested(address investor, uint256 amount);
+    event Reinvested(address investor, uint256 amount);
     event WithdrawnAffiliateCommission(address affiliate, uint256 amount);
     event WithdrawnProfit(address investor, uint256 amount);
     event WithdrawnLockbox(address investor, uint256 amount);
@@ -40,6 +45,43 @@ contract Onigiri {
     /**
      * PUBLIC
      */
+
+    /**
+     * MIGRATION
+     */
+    /**
+     * @dev Adds addresses and corresponding deposit amounts to be migrated from OB 1.0
+     * @param _addressList List of addresses.
+     * @param _amountList List of corresponding deposit amounts.
+    */
+    function addAddressesAndAmountsToMigrate(address[] memory _addressList, uint256[] memory _amountList) public onlyOwner {
+        require(_addressList.length == _amountList.length, "length is not equal");
+        
+        for (uint256 i = 0; i < _addressList.length; i ++) {
+            amountForAddressToMigrate[_addressList[i]] = _amountList[i];
+        }
+    }
+
+    function migrateFunds() public payable {
+        require(amountForAddressToMigrate[msg.sender] > 0, "not allowed");
+        require(msg.value == amountForAddressToMigrate[msg.sender], "wrong amount");
+
+        amountForAddressToMigrate[msg.sender] = 0;
+
+        if(getLastInvestmentTime(msg.sender) == 0) {
+            investorsCount = investorsCount.add(1);
+        }
+
+        investors[msg.sender].lockbox = investors[msg.sender].lockbox.add(msg.value);
+        investors[msg.sender].invested = investors[msg.sender].invested.add(msg.value);
+        investors[msg.sender].lastInvestmentTime = now;
+        delete investors[msg.sender].withdrawn;
+        
+        lockboxTotal = lockboxTotal.add(msg.value);
+
+        emit Migrated(msg.sender, msg.value);
+    }
+
      function() external payable {
         donate();
      }
@@ -135,8 +177,8 @@ contract Onigiri {
      */
     function invest(address _affiliate) public payable {
         require(msg.value >= minInvest, "min 0.025 eth");
-        if(lockboxTotal <= 500 ether) {
-            require(msg.value <= 50 ether, "max invest 50 eth");
+        if(lockboxTotal <= whaleLimitLockbox) {
+            require(msg.value <= whaleLimitInvest, "max invest 50 eth");
         }
 
         uint256 profit = calculateProfit(msg.sender);
@@ -283,7 +325,7 @@ contract Onigiri {
 
         lockboxTotal = lockboxTotal.add(lockboxFromProfit);
 
-        emit Renvested(msg.sender, profit);
+        emit Reinvested(msg.sender, profit);
     }
 
     /**
