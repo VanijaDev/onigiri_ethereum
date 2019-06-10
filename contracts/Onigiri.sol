@@ -347,7 +347,7 @@ contract Onigiri is Ownable {
      * @return rate for lockbox balance.
      * TESTED
      */
-    function percentRateInternal(uint256 _balance) public pure returns(uint256) {
+    function percentRateInternal(uint256 _balance) private pure returns(uint256) {
         /**
             ~ .99 -    - 0.6%
             1 ~ 50     - 0.96% 
