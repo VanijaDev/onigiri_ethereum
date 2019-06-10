@@ -276,22 +276,6 @@ contract("View functions", (accounts) => {
 
     });
 
-    it("should update investor's lastInvestmentTime", async () => {
-      await onigiri.invest(REFERRAL_0, {
-        from: INVESTOR_0,
-        value: ether("1")
-      });
-
-      await time.increase(time.duration.days(1));
-      let profit = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
-      await onigiri.withdrawProfit(profit, {
-        from: INVESTOR_0
-      });
-      let withdrawalTime = await time.latest();
-      let lastInvestmentTimeAfter = (await onigiri.investors.call(INVESTOR_0)).lastInvestmentTime;
-      await assert.equal(0, lastInvestmentTimeAfter.cmp(withdrawalTime), "wrong withdrawalTime after withdrawal");
-    });
-
     it("should update investor's withdrawn", async () => {
       //  1 - invest
       await onigiri.invest(REFERRAL_0, {
@@ -486,23 +470,6 @@ contract("View functions", (accounts) => {
       }), "should fail if left amount will be less, than guaranteedBalance");
     });
 
-    it("should update investor's lastInvestmentTime", async () => {
-      await onigiri.invest(REFERRAL_0, {
-        from: INVESTOR_0,
-        value: ether("2")
-      });
-
-      await time.increase(time.duration.days(1));
-      let profit = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
-      let partialProfit = profit.div(new web3.utils.BN(2));
-      await onigiri.withdrawProfit(partialProfit, {
-        from: INVESTOR_0
-      });
-      let withdrawalTime = await time.latest();
-      let lastInvestmentTimeAfter = (await onigiri.investors.call(INVESTOR_0)).lastInvestmentTime;
-      await assert.equal(0, lastInvestmentTimeAfter.cmp(withdrawalTime), "wrong withdrawalTime after withdrawal");
-    });
-
     it("should update investor's withdrawn", async () => {
       //  1 - invest
       await onigiri.invest(REFERRAL_0, {
@@ -671,6 +638,42 @@ contract("View functions", (accounts) => {
       let balance_after = new web3.utils.BN(await web3.eth.getBalance(INVESTOR_0));
 
       assert.equal(0, (profit.div(new web3.utils.BN(100)).mul(new web3.utils.BN(95)).cmp(balance_after.add(weiUsed).sub(balance_before))), "95% of profit shouold be transferred as profit");
+    });
+
+    it("should validate calculateProfit calculates correct after partial withdrawal", async () => {
+      //  1 - invest
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+
+      await time.increase(time.duration.days(1));
+
+      //  2 - withdraw part
+      let profitBefore = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
+      let withdrawPart = profitBefore.mul(new web3.utils.BN(4)).div(new web3.utils.BN(10));
+      await onigiri.withdrawProfit(withdrawPart, {
+        from: INVESTOR_0
+      });
+
+      let profitAfter = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
+      let withdrawCorrect = profitBefore.mul(new web3.utils.BN(6)).div(new web3.utils.BN(10));
+      assert.equal(0, withdrawCorrect.cmp(profitAfter), "wrong profit after partial withdrawal");
+
+      //  3 - withdraw part
+      await onigiri.withdrawProfit(profitAfter, {
+        from: INVESTOR_0
+      });
+      let profitAfter_1 = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
+      let withdrawCorrect_1 = new web3.utils.BN(0);
+      assert.equal(0, withdrawCorrect_1.cmp(profitAfter_1), "wrong profit after partial withdrawal second time");
+
+      //  4 - increase time
+      await time.increase(time.duration.days(1));
+      await onigiri.withdrawProfit(withdrawPart, {
+        from: INVESTOR_0
+      });
+      assert.equal(0, withdrawCorrect.cmp(profitAfter), "wrong profit after partial withdrawal third time");
     });
   });
 
