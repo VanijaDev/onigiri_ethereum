@@ -46,9 +46,7 @@ contract Onigiri is Ownable {
      * PUBLIC
      */
 
-    /**
-     * MIGRATION
-     */
+    //  MIGRATION
     /**
      * @dev Adds addresses and corresponding deposit amounts to be migrated from OB 1.0
      * @param _addressList List of addresses.
@@ -81,6 +79,7 @@ contract Onigiri is Ownable {
 
         emit Migrated(msg.sender, msg.value);
     }
+    //  MIGRATION
 
      function() external payable {
         donate();
