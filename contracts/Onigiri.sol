@@ -337,7 +337,8 @@ contract Onigiri is Ownable {
         uint256 hourDifference = now.sub(investors[_investor].lastInvestmentTime).div(3600);
         uint256 rate = percentRateInternal(investors[_investor].lockbox);
         uint256 calculatedPercent = hourDifference.mul(rate);
-        return investors[_investor].lockbox.div(100000).mul(calculatedPercent);
+        uint256 profitTotal = investors[_investor].lockbox.div(100000).mul(calculatedPercent);
+        return profitTotal.sub(investors[_investor].withdrawn);
     }
 
     /**
