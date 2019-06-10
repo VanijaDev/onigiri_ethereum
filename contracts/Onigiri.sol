@@ -319,8 +319,9 @@ contract Onigiri is Ownable {
         
         uint256 lockboxFromProfit = profit.div(100).mul(84);
         investors[msg.sender].lockbox = investors[msg.sender].lockbox.add(lockboxFromProfit);
-        investors[msg.sender].lastInvestmentTime = now;
         investors[msg.sender].invested = investors[msg.sender].invested.add(profit);
+        investors[msg.sender].lastInvestmentTime = now;
+        delete investors[msg.sender].withdrawn;
 
         lockboxTotal = lockboxTotal.add(lockboxFromProfit);
 
