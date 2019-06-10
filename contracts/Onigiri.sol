@@ -35,12 +35,12 @@ contract Onigiri is Ownable {
     uint256 public constant whaleLimitLockbox = 500 ether;
     uint256 public constant whaleLimitInvest = 50 ether;
 
-    event Migrated(address investor, uint256 amount);
-    event Invested(address investor, uint256 amount);
-    event Reinvested(address investor, uint256 amount);
-    event WithdrawnAffiliateCommission(address affiliate, uint256 amount);
-    event WithdrawnProfit(address investor, uint256 amount);
-    event WithdrawnLockbox(address investor, uint256 amount);
+    event Migrated(address indexed investor, uint256 amount);
+    event Invested(address indexed investor, uint256 amount);
+    event Reinvested(address indexed investor, uint256 amount);
+    event WithdrawnAffiliateCommission(address indexed affiliate, uint256 amount);
+    event WithdrawnProfit(address indexed investor, uint256 amount);
+    event WithdrawnLockbox(address indexed investor, uint256 amount);
 
     /**
      * PUBLIC
