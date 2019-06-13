@@ -439,34 +439,4 @@ contract("View functions", (accounts) => {
       assert.equal(0, ether("0").cmp(await onigiri.devCommission.call(DEV_0_ESCROW)), "wrong devCommission, should be 0");
     });
   });
-
-  // Made PRIVATE
-  // describe("percentRateInternal", () => {
-  //   /**
-  //     ~ .99 -    - 0.6%
-  //     1 ~ 50     - 0.96% 
-  //     51 ~ 100   - 1.2% 
-  //     100 ~ 250  - 1.44% 
-  //     250 ~      - 1.8% 
-  //   */
-  //   it("should return 25 for 0.5 eth", async () => {
-  //     assert.equal(0, new web3.utils.BN("25").cmp(await onigiri.percentRateInternal.call(ether("0.5"))), "should be 25");
-  //   });
-
-  //   it("should return 40 for 45 eth", async () => {
-  //     assert.equal(0, new web3.utils.BN("40").cmp(await onigiri.percentRateInternal.call(ether("45"))), "should be 40");
-  //   });
-
-  //   it("should return 50 for 95 eth", async () => {
-  //     assert.equal(0, new web3.utils.BN("50").cmp(await onigiri.percentRateInternal.call(ether("95"))), "should be 50");
-  //   });
-
-  //   it("should return 60 for 215 eth", async () => {
-  //     assert.equal(0, new web3.utils.BN("60").cmp(await onigiri.percentRateInternal.call(ether("215"))), "should be 60");
-  //   });
-
-  //   it("should return 75 for 251 eth", async () => {
-  //     assert.equal(0, new web3.utils.BN("75").cmp(await onigiri.percentRateInternal.call(ether("251"))), "should be 75");
-  //   });
-  // });
 });
