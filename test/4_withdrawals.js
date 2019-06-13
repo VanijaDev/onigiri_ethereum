@@ -267,13 +267,13 @@ contract("View functions", (accounts) => {
       });
       await time.increase(time.duration.days(25));
       let profit = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
-      // console.log("profit: ", profit.toString());
-      // console.log((await onigiri.guaranteedBalance.call()).toString());
+      // console.log("profit:      ", profit.toString());
+      // console.log("balance:     ", new web3.utils.BN(await web3.eth.getBalance(onigiri.address)).toString());
+      // console.log("guaranteed:  ", (await onigiri.guaranteedBalance.call()).toString());
 
       await shouldFail(onigiri.withdrawProfit(profit, {
         from: INVESTOR_0
       }), "should fail if left amount will be less, than guaranteedBalance");
-
     });
 
     it("should update investor's withdrawn", async () => {
