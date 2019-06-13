@@ -35,11 +35,11 @@ contract("View functions", (accounts) => {
 
   describe("CalculateProfit - 0.42 ETH in lockbox", () => {
     /**
-      ~ .99 -    - 0.6% = 25
-      1 ~ 50     - 0.96% = 40
-      51 ~ 100   - 1.2% = 50
-      100 ~ 250  - 1.44% = 60
-      250 ~      - 1.8% = 75 
+      ~ .99 -    - 0.6%   ==  25
+      1 ~ 50     - 0.72%  ==  30
+      51 ~ 100   - 0.84%  ==  35
+      100 ~ 250  - 0.96%  ==  40
+      250 ~      - 1.08%  ==  45
     */
     it("should get correct calculateProfit for 1 hour", async () => {
       await onigiri.invest(REFERRAL_0, {
@@ -85,11 +85,11 @@ contract("View functions", (accounts) => {
 
   describe("CalculateProfit - 1.68 ETH in lockbox", () => {
     /**
-      ~ .99 -    - 0.6% = 25
-      1 ~ 50     - 0.96% = 40
-      51 ~ 100   - 1.2% = 50
-      100 ~ 250  - 1.44% = 60
-      250 ~      - 1.8% = 75
+      ~ .99 -    - 0.6%   ==  25
+      1 ~ 50     - 0.72%  ==  30
+      51 ~ 100   - 0.84%  ==  35
+      100 ~ 250  - 0.96%  ==  40
+      250 ~      - 1.08%  ==  45
     */
     it("should get correct calculateProfit for 1 hour", async () => {
       await onigiri.invest(REFERRAL_0, {
@@ -98,7 +98,7 @@ contract("View functions", (accounts) => {
       });
 
       await time.increase(time.duration.hours(1));
-      assert.equal(0, ether("0.000672").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 hour profit should be 0.000672 eth");
+      assert.equal(0, ether("0.000504").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 hour profit should be 0.000504 eth");
     });
 
     it("should get correct calculateProfit for 1 day", async () => {
@@ -108,7 +108,7 @@ contract("View functions", (accounts) => {
       });
 
       await time.increase(time.duration.days(1));
-      assert.equal(0, ether("0.016128").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 day profit should be 0.016128 eth");
+      assert.equal(0, ether("0.012096").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 day profit should be 0.012096 eth");
     });
 
     it("should get correct calculateProfit for 1 week", async () => {
@@ -118,7 +118,7 @@ contract("View functions", (accounts) => {
       });
 
       await time.increase(time.duration.weeks(1));
-      assert.equal(0, ether("0.112896").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 week profit should be 0.112896 eth");
+      assert.equal(0, ether("0.084672").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 week profit should be 0.084672 eth");
     });
 
     it("should get correct calculateProfit for 1 year", async () => {
@@ -128,7 +128,7 @@ contract("View functions", (accounts) => {
       });
 
       await time.increase(time.duration.years(1));
-      assert.equal(0, ether("5.88672").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 year profit should be 5.88672 eth");
+      assert.equal(0, ether("4.41504").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 year profit should be 4.41504 eth");
     });
   });
 
@@ -139,15 +139,14 @@ contract("View functions", (accounts) => {
    */
   describe("CalculateProfit - 50.4 ETH in lockbox", () => {
     /**
-      ~ .99 -    - 0.6% = 25
-      1 ~ 50     - 0.96% = 40
-      51 ~ 100   - 1.2% = 50
-      100 ~ 250  - 1.44% = 60
-      250 ~      - 1.8% = 75
+      ~ .99 -    - 0.6%   ==  25
+      1 ~ 50     - 0.72%  ==  30
+      51 ~ 100   - 0.84%  ==  35
+      100 ~ 250  - 0.96%  ==  40
+      250 ~      - 1.08%  ==  45
 
       return investors[_investor].lockbox.div(100000).mul(calculatedPercent);
     */
-
     /*
     it.only("should get correct calculateProfit for 1 hour", async () => {
       //  1 - invest to get above 500 ETH
@@ -189,7 +188,7 @@ contract("View functions", (accounts) => {
 
       // console.log((await onigiri.investors.call(INVESTOR_0)).lastInvestmentTime.toString());
       // console.log((await time.latest()).toString());
-      assert.equal(0, ether("0.0252").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 hour profit should be 0.0252 eth");
+      assert.equal(0, ether("0.01764").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 hour profit should be 0.01764 eth");
     });
     */
 
@@ -234,7 +233,7 @@ contract("View functions", (accounts) => {
 
       // console.log((await onigiri.investors.call(INVESTOR_0)).lastInvestmentTime.toString());
       // console.log((await time.latest()).toString());
-      assert.equal(0, ether("0.6048").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 day profit should be 0.6048 eth");
+      assert.equal(0, ether("0.42336").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 day profit should be 0.42336 eth");
     });
     */
 
@@ -279,12 +278,38 @@ contract("View functions", (accounts) => {
 
       // console.log((await onigiri.investors.call(INVESTOR_0)).lastInvestmentTime.toString());
       // console.log((await time.latest()).toString());
-      assert.equal(0, ether("4.2336").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 week profit should be 4.2336 eth");
+      assert.equal(0, ether("2.96352").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 week profit should be 2.96352 eth");
     });
     */
 
     /*
     it.only("should get correct calculateProfit for 1 year", async () => {
+      //  1 - invest to get above 500 ETH
+      for (let i = 0; i < 14; i++) {
+        let addr;
+        if (i < 2) {
+          addr = OTHER_ADDR
+        } else if (i < 4) {
+          addr = REFERRAL_0;
+        } else if (i < 6) {
+          addr = REFERRAL_1;
+        } else if (i < 8) {
+          addr = DEV_0_ESCROW;
+        } else if (i < 10) {
+          addr = DEV_1_ESCROW;
+        } else if (i < 12) {
+          addr = DEV_0_MASTER;
+        } else if (i < 14) {
+          addr = INVESTOR_1;
+        }
+
+        await onigiri.invest(REFERRAL_0, {
+          from: addr,
+          value: ether("45")
+        });
+      }
+
+      //  2 - test
       await onigiri.invest(REFERRAL_0, {
         from: INVESTOR_0,
         value: ether("60") //  50.4 in lockbox
@@ -298,9 +323,10 @@ contract("View functions", (accounts) => {
 
       // console.log((await onigiri.investors.call(INVESTOR_0)).lastInvestmentTime.toString());
       // console.log((await time.latest()).toString());
-      assert.equal(0, ether("220.752").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 year profit should be 220.752 eth");
+      assert.equal(0, ether("154.5264").cmp(await onigiri.calculateProfit.call(INVESTOR_0)), "1 year profit should be 154.5264 eth");
     });
     */
+
   });
 
   describe("CalculateProfit - 105 ETH in lockbox", () => {
