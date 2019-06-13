@@ -49,6 +49,13 @@ module.exports = {
     // tab if you use this network and you must also set the `host`, `port` and `network_id`
     // options below to some value.
     //
+    develop: {
+      port: 8545,
+      network_id: 20,
+      accounts: 16,
+      defaultEtherBalance: 600
+    },
+
     ganache: {
       host: "127.0.0.1",
       port: 8545,
