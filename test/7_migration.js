@@ -233,8 +233,7 @@ contract("View functions", (accounts) => {
 
       //  2 - withdraw profit
       await time.increase(time.duration.days(1));
-      let profit = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
-      await onigiri.withdrawProfit(profit, {
+      await onigiri.withdrawProfit({
         from: INVESTOR_0
       });
       assert.isTrue(await onigiri.getWithdrawn.call(INVESTOR_0) > 0, "withdrawn should be > 0");

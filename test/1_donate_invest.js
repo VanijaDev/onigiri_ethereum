@@ -285,7 +285,7 @@ contract("Investments and donations", (accounts) => {
       //  2 - withdraw profit
       await time.increase(time.duration.days(1));
       let profit = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0)).mul(new web3.utils.BN(95)).div(new web3.utils.BN(100));
-      await onigiri.withdrawProfit(profit, {
+      await onigiri.withdrawProfit({
         from: INVESTOR_0
       });
 

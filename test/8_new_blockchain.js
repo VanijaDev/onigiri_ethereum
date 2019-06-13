@@ -34,7 +34,7 @@ contract("Investments and donations", (accounts) => {
   });
 
   it("should fail on invest > 50 ETH if balance is < 500 ETH", async () => {
-    console.log("\n\n UNCOMMENT FOR TESTS\n\n");
+    console.log("\n\n 8_new_blockchain.js - UNCOMMENT FOR TESTS\n\n");
     // //  test
     // await shouldFail(onigiri.invest(REFERRAL_0, {
     //   from: INVESTOR_0,
@@ -53,13 +53,13 @@ contract("Investments and donations", (accounts) => {
     //   value: ether("45")
     // });
 
-    // //  140
+    // //  145
     // await onigiri.invest(REFERRAL_0, {
     //   from: REFERRAL_1,
     //   value: ether("50")
     // });
 
-    // //  185
+    // //  190
     // await onigiri.invest(REFERRAL_0, {
     //   from: REFERRAL_1,
     //   value: ether("45")
@@ -71,37 +71,37 @@ contract("Investments and donations", (accounts) => {
     //   value: ether("51")
     // }), "1 - should fail on invest > 50 ETH if balance is < 500 ETH");
 
-    // //  235
+    // //  240
     // await onigiri.invest(REFERRAL_0, {
     //   from: DEV_0_ESCROW,
     //   value: ether("50")
     // });
 
-    // //  280
+    // //  285
     // await onigiri.invest(REFERRAL_0, {
     //   from: DEV_0_ESCROW,
     //   value: ether("45")
     // });
 
-    // //  330
+    // //  335
     // await onigiri.invest(REFERRAL_0, {
     //   from: DEV_1_ESCROW,
     //   value: ether("50")
     // });
 
-    // //  375
+    // //  380
     // await onigiri.invest(REFERRAL_0, {
     //   from: DEV_1_ESCROW,
     //   value: ether("45")
     // });
 
-    // //  425
+    // //  430
     // await onigiri.invest(REFERRAL_0, {
     //   from: DEV_0_MASTER,
     //   value: ether("50")
     // });
 
-    // //  470
+    // //  475
     // await onigiri.invest(REFERRAL_0, {
     //   from: DEV_0_MASTER,
     //   value: ether("45")
@@ -113,19 +113,19 @@ contract("Investments and donations", (accounts) => {
     //   value: ether("51")
     // }), "3 - should fail on invest > 50 ETH if balance is < 500 ETH");
 
-    // //  520
+    // //  525
     // await onigiri.invest(REFERRAL_0, {
     //   from: DEV_1_MASTER,
     //   value: ether("50")
     // });
 
-    // //  570
+    // //  575
     // await onigiri.invest(REFERRAL_0, {
     //   from: INVESTOR_1,
     //   value: ether("50")
     // });
 
-    // //  625
+    // //  620
     // await onigiri.invest(REFERRAL_0, {
     //   from: INVESTOR_1,
     //   value: ether("45")

@@ -88,7 +88,7 @@ contract("View functions", (accounts) => {
       await time.increase(time.duration.days(1));
       let profit = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
 
-      await onigiri.withdrawProfit(profit, {
+      await onigiri.withdrawProfit({
         from: INVESTOR_0
       });
 
@@ -110,14 +110,14 @@ contract("View functions", (accounts) => {
       //  2 - withdraw profit
       await time.increase(time.duration.days(1));
       let profit_0 = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
-      await onigiri.withdrawProfit(profit_0, {
+      await onigiri.withdrawProfit({
         from: INVESTOR_0
       });
 
       //  3 - withdraw profit
       await time.increase(time.duration.days(2));
       let profit_1 = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
-      await onigiri.withdrawProfit(profit_1, {
+      await onigiri.withdrawProfit({
         from: INVESTOR_0
       });
 
@@ -182,7 +182,7 @@ contract("View functions", (accounts) => {
       //  4 - withdraw
       let profit = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
       let devCommissionFromProfit = profit.div(new web3.utils.BN(100));
-      await onigiri.withdrawProfit(profit, {
+      await onigiri.withdrawProfit({
         from: INVESTOR_0
       });
 
@@ -356,8 +356,7 @@ contract("View functions", (accounts) => {
       });
       await time.increase(time.duration.hours(1));
 
-      let profit = new web3.utils.BN(await onigiri.calculateProfit.call(INVESTOR_0));
-      await onigiri.withdrawProfit(profit, {
+      await onigiri.withdrawProfit({
         from: INVESTOR_0
       });
 

@@ -52,8 +52,8 @@ module.exports = {
     develop: {
       port: 8545,
       network_id: 20,
-      accounts: 16,
-      defaultEtherBalance: 600
+      // accounts: 16,
+      // defaultEtherBalance: 600
     },
 
     ganache: {

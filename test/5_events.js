@@ -131,8 +131,7 @@ contract("Updating values", (accounts) => {
 
       await time.increase(time.duration.days(1));
 
-      let profit = await onigiri.calculateProfit.call(INVESTOR_1);
-      let tx = await onigiri.withdrawProfit(profit, {
+      let tx = await onigiri.withdrawProfit({
         from: INVESTOR_1,
       });
 
@@ -148,7 +147,7 @@ contract("Updating values", (accounts) => {
       await time.increase(time.duration.days(1));
       let profit = await onigiri.calculateProfit.call(INVESTOR_1);
 
-      let tx = await onigiri.withdrawProfit(profit, {
+      let tx = await onigiri.withdrawProfit({
         from: INVESTOR_1,
       });
 
