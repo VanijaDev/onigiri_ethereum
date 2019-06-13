@@ -174,7 +174,25 @@ contract("Updating values", (accounts) => {
       assert.equal(1, tx.logs.length, "should be 1 event");
     });
 
-    it("should validate WithdrawnLockbox includes correct data", async () => {
+    it("should validate WithdrawnLockBoxPartially includes correct data", async () => {
+      await onigiri.invest(REFERRAL_1, {
+        from: INVESTOR_1,
+        value: ether("0.55")
+      });
+
+      await time.increase(time.duration.days(1));
+
+      let tx = await onigiri.withdrawLockBoxPartially(ether("0.25"), {
+        from: INVESTOR_1,
+      });
+
+      let event = tx.logs[0];
+      assert.equal("WithdrawnLockBoxPartially", event.event, "wrong event name");
+      assert.equal(INVESTOR_1, event.args.investor, "wrong investor address");
+      assert.equal(0, ether("0.25").cmp(new web3.utils.BN(event.args.amount)), "wrong amount");
+    });
+
+    it("should validate WithdrawnLockboxAndClosed includes correct data", async () => {
       await onigiri.invest(REFERRAL_1, {
         from: INVESTOR_1,
         value: ether("0.5")
@@ -189,7 +207,7 @@ contract("Updating values", (accounts) => {
       });
 
       let event = tx.logs[0];
-      assert.equal("WithdrawnLockbox", event.event, "wrong event name");
+      assert.equal("WithdrawnLockboxAndClosed", event.event, "wrong event name");
       assert.equal(INVESTOR_1, event.args.investor, "wrong investor address");
       assert.equal(0, lockboxAmount.cmp(new web3.utils.BN(event.args.amount)), "wrong amount");
     });

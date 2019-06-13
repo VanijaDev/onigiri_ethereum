@@ -441,6 +441,137 @@ contract("View functions", (accounts) => {
     });
   });
 
+  describe("withdrawLockBoxPartially", async () => {
+    it("should fail if _amount == 0", async () => {
+      //  1 - invest
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+      await time.increase(time.duration.hours(1));
+
+      //  2 - withdraw
+      await shouldFail(onigiri.withdrawLockBoxPartially(0, {
+        from: INVESTOR_0
+      }), "should fail if _amount == 0");
+    });
+
+    it("should fail if no lockBox for investor", async () => {
+      await shouldFail(onigiri.withdrawLockBoxPartially(10, {
+        from: INVESTOR_0
+      }), "should fail if no lockBox for investor");
+    });
+
+    it("should fail if _amount > lockBox", async () => {
+      //  1 - invest
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+      await time.increase(time.duration.hours(1));
+
+      //  2 - withdraw
+      await shouldFail(onigiri.withdrawLockBoxPartially(ether("1"), {
+        from: INVESTOR_0
+      }), "should fail if _amount > lockBox");
+    });
+
+    it("should perform withdrawLockBoxAndClose if _amount == lockBox", async () => {
+      //  1 - invest
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+      await time.increase(time.duration.hours(1));
+
+      //  2 - withdraw
+      let tx = await onigiri.withdrawLockBoxPartially(ether("0.84"), {
+        from: INVESTOR_0
+      });
+
+      assert.equal(tx.logs.length, 1, "should be 1 event emitted");
+      assert.equal(tx.logs[0].event, "WithdrawnLockboxAndClosed", "should emit WithdrawnLockboxAndClosed event");
+    });
+
+    it("should update investor's lockbox", async () => {
+      //  1 - invest
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+      await time.increase(time.duration.hours(1));
+
+      //  2 - withdraw
+      await onigiri.withdrawLockBoxPartially(ether("0.4"), {
+        from: INVESTOR_0
+      });
+
+      let lockBox = await onigiri.getLockBox.call(INVESTOR_0);
+      assert.equal(0, lockBox.cmp(ether("0.44")), "wrong lockBox after partial withdrawal");
+    });
+
+    it("should update lockboxTotal", async () => {
+      //  1 - invest
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+
+      await onigiri.invest(REFERRAL_1, {
+        from: INVESTOR_1,
+        value: ether("2")
+      });
+
+      await time.increase(time.duration.hours(1));
+
+      let lockboxTotal_before = await onigiri.lockboxTotal.call();
+      //  2 - withdraw
+      await onigiri.withdrawLockBoxPartially(ether("0.4"), {
+        from: INVESTOR_0
+      });
+
+      let lockboxTotal_after = await onigiri.lockboxTotal.call();
+      assert.equal(0, lockboxTotal_before.sub(lockboxTotal_after).cmp(ether("0.4")), "wrong lockBoxTotal after partial withdrawal");
+    });
+
+    it("should decrease OB Smart Contract balance", async () => {
+      //  1 - invest
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+      await time.increase(time.duration.hours(1));
+
+      let OBBalance_before = new web3.utils.BN(await web3.eth.getBalance(onigiri.address));
+      //  2 - withdraw
+      await onigiri.withdrawLockBoxPartially(ether("0.44"), {
+        from: INVESTOR_0
+      });
+
+      let OBBalance_after = new web3.utils.BN(await web3.eth.getBalance(onigiri.address));
+      assert.equal(0, OBBalance_before.sub(OBBalance_after).cmp(ether("0.44")), "wrong OB Smart Contract balance after partial withdrawal");
+    });
+
+    it("should transfer amount to investor", async () => {
+      //  1 - invest
+      await onigiri.invest(REFERRAL_0, {
+        from: INVESTOR_0,
+        value: ether("1")
+      });
+      await time.increase(time.duration.hours(1));
+
+      let balance_before = new web3.utils.BN(await web3.eth.getBalance(INVESTOR_0));
+      //  2 - withdraw
+      let tx = await onigiri.withdrawLockBoxPartially(ether("0.44"), {
+        from: INVESTOR_0
+      });
+
+      let balance_after = new web3.utils.BN(await web3.eth.getBalance(INVESTOR_0));
+
+      assert.equal(1, balance_after.cmp(balance_before), "transfer amount to investor");
+    });
+  });
+
   describe("withdrawLockBoxAndClose", async () => {
     it("should fail if no lockbox", async () => {
       await shouldFail(onigiri.withdrawLockBoxAndClose({

@@ -40,7 +40,8 @@ contract Onigiri is Ownable {
     event Reinvested(address indexed investor, uint256 amount);
     event WithdrawnAffiliateCommission(address indexed affiliate, uint256 amount);
     event WithdrawnProfit(address indexed investor, uint256 amount);
-    event WithdrawnLockbox(address indexed investor, uint256 amount);
+    event WithdrawnLockBoxPartially(address indexed investor, uint256 amount);
+    event WithdrawnLockboxAndClosed(address indexed investor, uint256 amount);
 
     /**
      * PUBLIC
@@ -289,7 +290,31 @@ contract Onigiri is Ownable {
 
         msg.sender.transfer(lockboxAmount);
 
-        emit WithdrawnLockbox(msg.sender, lockboxAmount);
+        emit WithdrawnLockboxAndClosed(msg.sender, lockboxAmount);
+    }
+
+    /**
+     * @dev Allows investor to withdraw part of lockbox funds.
+     * @param _amount Amount to withdraw.
+     * TESTED
+     */
+    function withdrawLockBoxPartially(uint256 _amount) public {
+        require(_amount > 0, "No amount");
+
+        uint256 lockboxAmount = getLockBox(msg.sender);
+        require(lockboxAmount > 0, "No investments");
+        require(_amount <= lockboxAmount, "Not enough lockBox");
+
+        if (_amount == lockboxAmount) {
+            withdrawLockBoxAndClose();
+            return;
+        }
+
+        investors[msg.sender].lockbox = investors[msg.sender].lockbox.sub(_amount);
+        lockboxTotal = lockboxTotal.sub(_amount);
+        msg.sender.transfer(_amount);
+
+        emit WithdrawnLockBoxPartially(msg.sender, _amount);
     }
     
     /**
