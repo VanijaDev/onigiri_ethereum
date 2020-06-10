@@ -1,7 +1,7 @@
-pragma solidity ^0.5.8;
+pragma solidity ^0.6.0;
 
 import "../node_modules/openzeppelin-solidity/contracts/math/SafeMath.sol";
-import "../node_modules/openzeppelin-solidity/contracts/ownership/Ownable.sol";
+import "../node_modules/openzeppelin-solidity/contracts/access/Ownable.sol";
 
 contract Onigiri is Ownable {
     using SafeMath for uint256;
@@ -82,7 +82,7 @@ contract Onigiri is Ownable {
     }
     //  MIGRATION
 
-     function() external payable {
+     receive() external payable {
         donate();
      }
 
