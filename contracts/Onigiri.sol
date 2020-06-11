@@ -126,7 +126,7 @@ contract Onigiri is Ownable {
 
     /**
      * @dev Calculates sum for lockboxes and dev fees.
-     * @return Amount of guaranteed balance by constract.
+     * @return Amount of guaranteed balance in contract.
      * TESTED
      */
     function guaranteedBalance() public view returns(uint256) {
@@ -149,7 +149,9 @@ contract Onigiri is Ownable {
         }
 
         //  1% - to affiliateCommission
-        if(_affiliate != msg.sender && _affiliate != address(0)) {
+        require(_affiliate != msg.sender, "Wrong affiliate");
+
+        if(_affiliate != address(0)) {
             uint256 commission = msg.value.div(100);
             affiliateCommission[_affiliate] = affiliateCommission[_affiliate].add(commission);
         }
@@ -158,7 +160,7 @@ contract Onigiri is Ownable {
             investorsCount = investorsCount.add(1);
         }
 
-        uint256 lockboxAmount = msg.value.div(100).mul(84);
+        uint256 lockboxAmount = msg.value.div(100).mul(90);
         investors[msg.sender].lockbox = investors[msg.sender].lockbox.add(lockboxAmount);
         investors[msg.sender].invested = investors[msg.sender].invested.add(msg.value);
         investors[msg.sender].lastInvestmentTime = now;
@@ -191,7 +193,7 @@ contract Onigiri is Ownable {
     function withdrawDevCommission() public {
         uint256 commission = devCommission[msg.sender];
         require(commission > 0, "no dev commission");
-        require(address(this).balance.sub(commission) >= lockboxTotal, "not enough funds");
+        require(address(this).balance >= guaranteedBalance().sub(commission), "not enough funds");  //  test
 
         delete devCommission[msg.sender];
         msg.sender.transfer(commission);
@@ -279,7 +281,8 @@ contract Onigiri is Ownable {
 
         emit WithdrawnLockBoxPartially(msg.sender, _amount);
     }
-    
+
+
     /**
      * @dev Reinvests pending profit.
      * TESTED
@@ -289,7 +292,7 @@ contract Onigiri is Ownable {
         require(profit > 0, "No profit");
         require(address(this).balance.sub(profit) >= guaranteedBalance(), "not enough funds");
         
-        uint256 lockboxFromProfit = profit.div(100).mul(84);
+        uint256 lockboxFromProfit = profit.div(100).mul(90);
         investors[msg.sender].lockbox = investors[msg.sender].lockbox.add(lockboxFromProfit);
         investors[msg.sender].invested = investors[msg.sender].invested.add(profit);
         investors[msg.sender].lastInvestmentTime = now;
