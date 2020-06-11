@@ -16,7 +16,6 @@ contract Onigiri is Ownable {
     mapping (address => InvestorInfo) public investors;
     mapping (address => uint256) public affiliateCommission;
     mapping (address => uint256) public devCommission;
-    mapping (address => uint256) public amountForAddressToMigrate;
 
     uint256 public investorsCount;
     uint256 public lockboxTotal;
@@ -35,7 +34,6 @@ contract Onigiri is Ownable {
     uint256 public constant whaleLimitLockbox = 500 ether;
     uint256 public constant whaleLimitInvest = 50 ether;
 
-    event Migrated(address indexed investor, uint256 amount);
     event Invested(address indexed investor, uint256 amount);
     event Reinvested(address indexed investor, uint256 amount);
     event WithdrawnAffiliateCommission(address indexed affiliate, uint256 amount);
@@ -46,41 +44,6 @@ contract Onigiri is Ownable {
     /**
      * PUBLIC
      */
-
-    //  MIGRATION
-    /**
-     * @dev Adds addresses and corresponding deposit amounts to be migrated from OB 1.0
-     * @param _addressList List of addresses.
-     * @param _amountList List of corresponding deposit amounts.
-    */
-    function addAddressesAndAmountsToMigrate(address[] memory _addressList, uint256[] memory _amountList) public onlyOwner {
-        require(_addressList.length == _amountList.length, "length is not equal");
-        
-        for (uint256 i = 0; i < _addressList.length; i ++) {
-            amountForAddressToMigrate[_addressList[i]] = _amountList[i];
-        }
-    }
-
-    function migrateFunds() public payable {
-        require(amountForAddressToMigrate[msg.sender] > 0, "not allowed");
-        require(msg.value == amountForAddressToMigrate[msg.sender], "wrong amount");
-
-        amountForAddressToMigrate[msg.sender] = 0;
-
-        if(getLastInvestmentTime(msg.sender) == 0) {
-            investorsCount = investorsCount.add(1);
-        }
-
-        investors[msg.sender].lockbox = investors[msg.sender].lockbox.add(msg.value);
-        investors[msg.sender].invested = investors[msg.sender].invested.add(msg.value);
-        investors[msg.sender].lastInvestmentTime = now;
-        delete investors[msg.sender].withdrawn;
-        
-        lockboxTotal = lockboxTotal.add(msg.value);
-
-        emit Migrated(msg.sender, msg.value);
-    }
-    //  MIGRATION
 
      receive() external payable {
         donate();
